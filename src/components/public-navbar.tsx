@@ -10,7 +10,7 @@ export function PublicNavbar() {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-serif font-bold text-xl">
           <Mountain className="w-6 h-6 text-primary" />
-          <span>TurismoApp</span>
+          <span>SantaBarbara</span>
         </Link>
 
         <div className="flex items-center gap-6">

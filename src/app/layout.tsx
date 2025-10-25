@@ -15,7 +15,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: "TurismoApp - Reserva Planes Turísticos",
+  title: "Santa Barbara - Reserva Planes Turísticos",
   description: "Plataforma para la reserva de planes turísticos con guías expertos",
 }
 
