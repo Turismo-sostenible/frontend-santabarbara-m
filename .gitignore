@@ -1,0 +1,27 @@
+# Archivos de secretos y variables de entorno
+.env.local
+.env.*.local
+.env
+
+/node_modules
+
+# Archivos de build y caché de Next.js
+/.next/
+/out/
+
+# Caché de Turbopack 
+/.turbo/
+
+# Caché de TypeScript
+*.tsbuildinfo
+
+# Logs de npm
+npm-debug.log*
+*.log
+
+# Archivos del Sistema Operativo
+.DS_Store
+Thumbs.db
+
+# Archivos del editor (VS Code)
+.vscode/
