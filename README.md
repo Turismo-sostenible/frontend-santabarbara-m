@@ -1,75 +1,70 @@
-# React + TypeScript + Vite
+# frontend-santabarbara
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Overview
 
-Currently, two official plugins are available:
+This is the web frontend for **Santa Barbara**, a platform for browsing and booking tourist packages planes with expert guides in Colombia.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The application is built with a modern web stack:
 
-## React Compiler
+*   **Framework**: [Next.js](https://nextjs.org/) (using the App Router)
+*   **Language**: [TypeScript](https://www.typescriptlang.org/)
+*   **UI Library**: [React](https://react.dev/)
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+*   **UI Components**: [shadcn/ui](https://ui.shadcn.com/), which is a collection of reusable components built on Radix UI and Tailwind CSS.
+*   **Icons**: [Lucide React](https://lucide.dev/)
+*   **Form Handling**: [React Hook Form](https://react-hook-form.com/) for logic and [Zod](https://zod.dev/) for schema validation.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Architecture
 
-Note: This will impact Vite dev & build performances.
+The project follows standard Next.js App Router conventions.
 
-## Expanding the ESLint configuration
+*   **API Communication**: All communication with the backend is centralized through a custom `apiClient` located at `src/lib/api.ts`. This client handles request/response logic, error handling, and automatically attaches authentication tokens.
+*   **Service Layer**: The `apiClient` is further abstracted by a service layer in `src/service/`. Each service file (e.g., `planes-service.ts`, `auth-service.ts`) is responsible for interacting with a specific part of the backend API.
+*   **Component Structure**: Reusable components are located in `src/components/`. The low-level, unstyled UI primitives provided by `shadcn/ui` are in `src/components/ui/`.
+*   **Typing**: TypeScript types are centralized in `src/types/index.ts`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Building and Running
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+First, install the project dependencies:
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+To run the local development server (usually on `http://localhost:3000`):
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+### Production
+
+To build the application for production:
+
+```bash
+npm run build
+```
+
+To run the production server after building:
+
+```bash
+npm run start
+```
+
+### Linting
+
+To check the code for style and potential errors:
+
+```bash
+npm run lint
+```
+
+## Development Conventions
+
+*   **Path Aliases**: The project uses the `@/*` path alias to refer to the `src/` directory. Always use this alias when importing modules from within the project (e.g., `import { Button } from '@/components/ui/button'`).
+*   **API Interaction**: Never use `fetch` directly. All backend API calls must go through the `apiClient` (`src/lib/api.ts`) or its corresponding service function in `src/service/`.
+*   **Styling**: Use Tailwind CSS utility classes for styling. For new UI elements, first check if a suitable component exists in `shadcn/ui` before building a new one from scratch.
+*   **Components**: Differentiate between Client Components (`"use client"`) and Server Components. Place general-purpose, reusable components in `src/components/`. Page-specific components can be co-located with their pages or routes.
+*   **Forms**: All forms should be built using `react-hook-form` and validated with `zod` schemas.
