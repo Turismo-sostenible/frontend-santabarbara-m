@@ -37,6 +37,8 @@ async function fetchWrapper(
   endpoint: string,
   options: RequestInit = {}
 ) {
+
+  console.log("API Client initialized");
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
 
