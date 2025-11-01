@@ -5,6 +5,7 @@ import { PublicNavbar } from "@/components/public-navbar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 
 type Plan = {
     id: string
@@ -29,7 +30,7 @@ const METODOS = [
     },
     {
         nombre: "Tarjeta Debito",
-        icon: "/mastercard.png" // Usa tus íconos locales de mastercard, visa, efecty, etc.
+        icon: "/mastercard.png"
     },
     {
         nombre: "Tarjeta Credito",
@@ -51,6 +52,7 @@ export default function ReservasPage() {
     const [showMetodoPago, setShowMetodoPago] = useState(false)
     const [pago, setPago] = useState(false)
     const [metodo, setMetodo] = useState("")
+    const router = useRouter();
 
     useEffect(() => {
         try {
@@ -73,7 +75,7 @@ export default function ReservasPage() {
             minimumFractionDigits: 0,
         }).format(price)
 
-    const precioPersona = 45000
+    const precioPersona = plan ? plan.precio : 45000
     const kitsTurismo = 10000
     const total =
         participantes * precioPersona + participantes * kitsTurismo + participantes * precioRefrigerio
@@ -81,8 +83,15 @@ export default function ReservasPage() {
     return (
         <div className="min-h-screen bg-background">
             <PublicNavbar />
-            <main className="max-w-4xl mx-auto p-4 space-y-8">
-                <h2 className="text-center text-2xl font-bold border rounded-lg py-2">{plan?.nombre ?? "Avistamiento de aves"}</h2>
+            <button
+                className="m-4 ml-46 px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-black font-medium"
+                onClick={() => router.push("/planes")}
+            >
+                {" <-- "}
+            </button>
+            <main className="max-w-4xl mx-auto space-y-8">
+
+                <h2 className="text-center flex-1 text-2xl font-bold border rounded-lg py-2">{plan?.nombre}</h2>
 
                 <section className="bg-muted rounded-lg p-6 flex gap-4 items-center">
                     <Image
@@ -156,7 +165,17 @@ export default function ReservasPage() {
                                 <div className="flex justify-between"><span>Refrigerio({refrigerio}) x{participantes}</span><span>{formatPrice(participantes * precioRefrigerio)}</span></div>
                                 <div className="flex justify-between font-bold mt-2 text-green-600"><span>Total</span><span>{formatPrice(total)}</span></div>
                             </div>
-                            <button type="submit" className="w-full py-3 bg-primary rounded text-white font-semibold text-lg">Reservar ahora</button>
+                            <button
+                                className="w-full py-3 bg-primary rounded text-white font-semibold text-lg"
+                                onClick={() => {
+                                    if (refrigerio === "" || fecha === "") {
+                                        alert("Selecciona un refrigerio y una fecha");
+                                        return;
+                                    }
+                                    setShowModal(true);
+                                }}
+                                type="button"
+                            >Reservar ahora</button>
                         </form>
                     </CardContent>
                 </Card>
