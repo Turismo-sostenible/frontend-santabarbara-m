@@ -9,20 +9,53 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PublicNavbar } from "@/components/public-navbar"
+import { toast } from "sonner"
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
-    nombre: "",
+    username: "",
+    name: "",
     email: "",
     password: "",
-    telefono: "",
-    direccion: "",
+    phone: "",
+    address: "",
+    age: ""
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement registration logic
-    console.log("Register:", formData)
+    const TENANT_ID = "01-santa-barbara"
+    const API_URL = "https://api-gateway-wi8c.onrender.com/auth/register"
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "tenant_id": TENANT_ID,
+        },
+        body: JSON.stringify({
+          ...formData, // Esto copia todo lo que ya tenías (nombre, email, etc.)
+          edad: parseInt(formData.age), // Asegúrate de convertir edad a número si es necesario
+          role: "CLIENT" // <-- Aquí añades el rol
+        })
+      })
+
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 409) {
+          toast.error("Error en el registro. Verifica tus datos e intenta nuevamente.")
+        } else {
+          toast.error("Error del servidor. Por favor, intenta más tarde.")
+        }
+        return;
+      }
+
+      const data = await response.json()
+      
+
+    }catch (err: any) {
+      console.error("Error durante el registro:", err.message)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +77,20 @@ export default function RegisterPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+
+              <div className="space-y-2">
+                <Label htmlFor="nombre">Nombre de Usuario</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  placeholder="Tu nombre de usuario"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label htmlFor="nombre">Nombre Completo</Label>
                 <Input
@@ -51,7 +98,22 @@ export default function RegisterPage() {
                   name="nombre"
                   type="text"
                   placeholder="Juan Pérez"
-                  value={formData.nombre}
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edad">Edad</Label>
+                <Input
+                  id="edad"
+                  name="edad"
+                  type="number"
+                  placeholder="Tu edad"
+                  min="1"
+                  max="100"
+                  value={formData.age}
                   onChange={handleChange}
                   required
                 />
@@ -91,7 +153,7 @@ export default function RegisterPage() {
                   name="telefono"
                   type="tel"
                   placeholder="+57 300 123 4567"
-                  value={formData.telefono}
+                  value={formData.phone}
                   onChange={handleChange}
                   required
                 />
@@ -104,7 +166,7 @@ export default function RegisterPage() {
                   name="direccion"
                   type="text"
                   placeholder="Calle 123 #45-67"
-                  value={formData.direccion}
+                  value={formData.address}
                   onChange={handleChange}
                   required
                 />
