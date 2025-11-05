@@ -113,10 +113,10 @@
     return (
       <div>
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold">Gestión de Guías</h1>
+          <h1 className="text-3xl font-bold">Gestión de Usuarios</h1>
           <Button onClick={handleCreate} className="flex items-center gap-2">
             <PlusCircle className="w-5 h-5" />
-            Crear Guía
+            Crear Usuario
           </Button>
         </div>
 
