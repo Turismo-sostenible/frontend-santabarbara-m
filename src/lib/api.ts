@@ -44,8 +44,8 @@ async function fetchWrapper(
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
 
-  const defaultHeaders: HeadersInit = {
-    "Content-Type": "application/json",
+  const headers: Record<string, string> = {
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   // Si tenemos un token, lo adjuntamos a la cabecera
@@ -55,14 +55,17 @@ async function fetchWrapper(
 
   if (token && !isPublicRoute) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
+
+  // Si el cuerpo es un objeto convertir a JSON.
+  if (options.body && !(options.body instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(options.body);
+
   }
 
   const finalOptions: RequestInit = {
     ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
+    headers,
   };
 
   const response = await fetch(url, finalOptions);
@@ -90,14 +93,14 @@ export const apiClient = {
     fetchWrapper(endpoint, {
       ...options,
       method: "POST",
-      body: JSON.stringify(body),
+      body,
     }),
 
   put: (endpoint: string, body: any, options: RequestInit = {}) =>
     fetchWrapper(endpoint, {
       ...options,
       method: "PUT",
-      body: JSON.stringify(body),
+      body,
     }),
 
   delete: (endpoint: string, options: RequestInit = {}) =>
