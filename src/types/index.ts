@@ -17,22 +17,31 @@ export interface Plan {
  * Interfaces para el Microservicio de "Reservas"
  */
 export interface Reserva {
-  id: string;
-  planId: string;
-  usuarioId: string;
-  fechaHora: string; 
-  cantidadParticipantes: number;
-  opcionAlimentacion: "sin alimentacion" | "almuerzo" | "refrigerio";
+  reservaId: string;
+  usuario: string;
+  guia: string;
+  plan: string;
+  participantes: number;
+  refrigerio: "DESAYUNO" | "ALMUERZO" | "MERIENDA" | "CENA";
+  fechaReserva: string;
+  estado: "PENDIENTE" | "CONFIRMADA" | "CANCELADA";
   precioTotal: number;
-  estado: "confirmada" | "cancelada" | "completada";
 }
 
-// Payload para crear una nueva reserva (lo que el usuario envía)
 export interface CreateReservaPayload {
-  planId: string;
-  fechaHora: string;
-  cantidadParticipantes: number;
-  opcionAlimentacion: "sin alimentacion" | "almuerzo" | "refrigerio";
+  usuario: string;
+  guia: string;
+  plan: string;
+  participantes: number;
+  refrigerio: "DESAYUNO" | "ALMUERZO" | "MERIENDA" | "CENA";
+  fechaReserva: string;
+  estado: "PENDIENTE" | "CONFIRMADA" | "CANCELADA";
+  precioTotal: number;
+}
+
+export interface UpdateReservaPayload {
+  refrigerio?: "DESAYUNO" | "ALMUERZO" | "MERIENDA" | "CENA";
+  fechaReserva?: string;
 }
 
 // Tipos para la estructura de tiempo
