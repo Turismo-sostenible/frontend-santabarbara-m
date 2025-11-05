@@ -11,6 +11,9 @@ import { Label } from "@/components/ui/label"
 import { PublicNavbar } from "@/components/public-navbar"
 import { useRouter } from "next/navigation"
 
+import { apiClient, saveAuthData } from "@/lib/api";
+import { AuthResponse } from "@/types";
+
 function parseJwt(token: string) {
   if (!token) { return null; }
   try {
@@ -39,10 +42,14 @@ export default function LoginPage() {
     setError(null) // Reset error state before new submission
 
     const TENANT_ID = "01-santa-barbara"
-    const API_URL = "https://api-gateway-wi8c.onrender.com/auth/login"
+    //const API_URL = "https://api-gateway-wi8c.onrender.com/auth/login"
 
     try{
-      const response = await fetch(API_URL, {
+      const data : AuthResponse = await apiClient.post("/auth/login", { 
+        email: email,
+        password: password
+      }, { headers: { "tenant_id": TENANT_ID } });
+      /*const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -52,10 +59,12 @@ export default function LoginPage() {
           email: email,
           password: password
         }),
-      })
+      })*/
+      saveAuthData(data);
 
-      const data = await response.json()
+      //const data = await response.json()
       console.log("Inicio de sesión exitoso:", data.accessToken);
+
       // --- MODIFICACIÓN 1 ---
       // Vamos a ver qué nos da el servidor exactamente
       console.log("Inicio de sesión exitoso. Data recibida:", data)
@@ -66,7 +75,7 @@ export default function LoginPage() {
         return; // Detener la ejecución si no hay token
       }
 
-      localStorage.setItem("token", data.accessToken)
+      localStorage.setItem("token", data.accessToken);
 
       const decodedToken = parseJwt(data.accessToken)
 
@@ -76,9 +85,8 @@ export default function LoginPage() {
         if (decodedToken.roles.includes("ADMINISTRATOR")) {
           // Redirigir usando el objeto window
           window.location.assign("/admin/guias");
-        } else {
-          // Redirigir a otros usuarios a un dashboard general
-          window.location.assign("/dashboard");
+        } else if (decodedToken.roles.includes("CLIENT")) {
+          window.location.assign("/planes");
         }
       } else {
         console.error("Token inválido o no contiene la propiedad 'roles'.");

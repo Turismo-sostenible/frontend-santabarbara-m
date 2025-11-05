@@ -17,7 +17,7 @@ export default function AdminLayout({
         <ul className="space-y-2">
           <li>
             <Link
-              href="/admin"
+              href="/admin/dashboard"
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
             >
               <Home className="w-5 h-5" />

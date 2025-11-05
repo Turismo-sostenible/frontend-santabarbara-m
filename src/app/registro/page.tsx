@@ -15,6 +15,7 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     username: "",
     name: "",
+    lastname: "",
     email: "",
     password: "",
     phone: "",
@@ -92,13 +93,26 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="nombre">Nombre Completo</Label>
+                <Label htmlFor="nombre">Nombre</Label>
                 <Input
                   id="nombre"
-                  name="nombre"
+                  name="name"
                   type="text"
                   placeholder="Juan Pérez"
                   value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="apellido">Apellido</Label>
+                <Input
+                  id="apellido"
+                  name="lastname"
+                  type="text"
+                  placeholder="Pérez"
+                  value={formData.lastname}
                   onChange={handleChange}
                   required
                 />

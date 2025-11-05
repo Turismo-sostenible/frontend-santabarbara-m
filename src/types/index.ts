@@ -101,30 +101,41 @@ export interface UpdateGuiaPayload {
  */
 export interface Usuario {
   id: string;
-  nombre: string;
-  correo: string;
-  telefono: string;
-  direccion: string;
-  rol: "CLIENTE" | "ADMIN" | "GUIA"; 
+  name: string;
+  email: string;
+  role: "CLIENT" | "ADMINISTRATOR" | "TOURIST_GUIDE";
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  age: number;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  email?: string;
+  age?: number;
 }
 
 // Payload para el login
 export interface LoginPayload {
-  correo: string;
-  contrasena: string;
+  email: string;
+  password: string;
 }
 
 // Payload para el registro
 export interface RegisterPayload {
-  nombre: string;
-  correo: string;
-  contrasena: string;
-  telefono: string;
-  direccion: string;
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
 }
 
 // Respuesta del login
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   usuario: Usuario;
 }

@@ -9,8 +9,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
  */
 export const saveAuthData = (data: AuthResponse) => {
   if (typeof window === "undefined") return; // Asegura que solo se ejecute en el cliente
-  localStorage.setItem("authToken", data.token);
-  localStorage.setItem("usuario", JSON.stringify(data.usuario));
+  localStorage.setItem("authToken", data.accessToken);
+  if (data.usuario) {
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+  }
 };
 
 /**
@@ -47,7 +49,11 @@ async function fetchWrapper(
   };
 
   // Si tenemos un token, lo adjuntamos a la cabecera
-  if (token) {
+  const isPublicRoute =
+    endpoint.startsWith("/auth/login") ||
+    endpoint.startsWith("/auth/register");
+
+  if (token && !isPublicRoute) {
     defaultHeaders["Authorization"] = `Bearer ${token}`;
   }
 

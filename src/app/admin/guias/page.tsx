@@ -27,37 +27,9 @@ import { getGuias, deleteGuia } from "@/service/guias-service";
 import { GuiaForm } from "./guia-form";
 import { DisponibilidadForm } from "./disponibilidad-form";
 
-const FAKE_GUIAS: Guia[] = [
-  { 
-    id: '1', 
-    nombre: 'Ana María López', 
-    email: 'ana.lopez@guias.com', 
-    telefono: '3101234567', 
-    estado: 'Activo',
-    horarios: [] // <-- AÑADE ESTA LÍNEA
-  },
-  { 
-    id: '2', 
-    nombre: 'Carlos Fernández', 
-    email: 'carlos.f@guias.com', 
-    telefono: '3207654321', 
-    estado: 'Inactivo',
-    horarios: [] // <-- AÑADE ESTA LÍNEA
-  },
-  { 
-    id: '3', 
-    nombre: 'Sofía Restrepo', 
-    email: 'sofia.restrepo@guias.com', 
-    telefono: '3001112233', 
-    estado: 'Activo',
-    horarios: [] // <-- AÑADE ESTA LÍNEA
-  },
-];
-
 export default function GuiasAdminPage() {
-  const [guias, setGuias] = useState<Guia[]>(FAKE_GUIAS);
-  //const [isLoading, setIsLoading] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [guias, setGuias] = useState<Guia[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   // Estados para controlar los modales
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -65,7 +37,7 @@ export default function GuiasAdminPage() {
   const [selectedGuia, setSelectedGuia] = useState<Guia | null>(null);
 
   // Cargar todos los guías
-  /*const fetchGuias = async () => {
+  const fetchGuias = async () => {
     setIsLoading(true);
     try {
       const data = await getGuias();
@@ -81,7 +53,7 @@ export default function GuiasAdminPage() {
 
   useEffect(() => {
     fetchGuias();
-  }, []);*/
+  }, []);
 
 
   const handleCreate = () => {
@@ -102,7 +74,7 @@ export default function GuiasAdminPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de que quieres eliminar este guía?")) return;
 
-    /*try {
+    try {
       await deleteGuia(id);
       toast.success("Guía eliminado");
       fetchGuias(); // Recarga la lista
@@ -110,19 +82,17 @@ export default function GuiasAdminPage() {
       toast.error("Error al eliminar guía", {
         description: (error as Error).message,
       });
-    }*/
-    setGuias((prevGuias) => prevGuias.filter((guia) => guia.id !== id));
-    toast.success("Guía eliminado");
+    }
   };
 
   // Callback para cuando un formulario se completa
   const onFormSubmit = () => {
-    //fetchGuias(); 
+    fetchGuias(); 
     setIsFormOpen(false); 
     setIsDispoOpen(false); 
   };
   
-  //if (isLoading) return <div>Cargando guías...</div>;
+  if (isLoading) return <div>Cargando guías...</div>;
 
   return (
     <div>
