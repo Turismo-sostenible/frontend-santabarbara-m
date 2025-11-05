@@ -1,4 +1,6 @@
-import Link from "next/link"
+"use client"
+
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Clock, DollarSign } from "lucide-react"
@@ -21,6 +23,17 @@ export function PlanCard({ plan }: PlanCardProps) {
       currency: "COP",
       minimumFractionDigits: 0,
     }).format(price)
+  }
+
+  const router = useRouter()
+
+  const handleReserve = () => {
+    try {
+      sessionStorage.setItem("selectedPlan", JSON.stringify(plan))
+    } catch (e) {
+      // ignore
+    }
+    router.push("/reservas")
   }
 
   return (
@@ -50,8 +63,8 @@ export function PlanCard({ plan }: PlanCardProps) {
       </CardContent>
 
       <CardFooter className="p-6 pt-0">
-        <Button asChild className="w-full bg-primary hover:bg-primary/90">
-          <Link href={`/planes/${plan.id}`}>Reservar Ahora</Link>
+        <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleReserve}>
+          Reservar Ahora
         </Button>
       </CardFooter>
     </Card>

@@ -1,22 +1,57 @@
 // src/services/reservas-service.ts
-import { apiClient } from "@/lib/api";
-import type { Reserva, CreateReservaPayload } from "@/types";
+import { apiClient } from "@/lib/api"
+import type {
+  Reserva,
+  CreateReservaPayload,
+  UpdateReservaPayload
+} from "@/types"
 
-const RESERVAS_ENDPOINT = "/reservas";
+const QUERY_ENDPOINT = "/api/v1/reservas"
 
-export const createReserva = async (
-  reservaData: CreateReservaPayload
-): Promise<Reserva> => {
-  // Llama a: POST http://localhost:8080/reservas (requiere token)
-  return apiClient.post(RESERVAS_ENDPOINT, reservaData);
-};
+// --- Métodos de Consulta (reserva-query-controller) ---
 
-export const getMisReservas = async (): Promise<Reserva[]> => {
-  // Llama a: GET http://localhost:8080/reservas/mis-reservas (requiere token)
-  return apiClient.get(`${RESERVAS_ENDPOINT}/mis-reservas`);
-};
+/**
+ * Obtiene la lista de todas las reservas.
+ * GET /reservas
+ */
+export const getReservas = async (): Promise<Reserva[]> => {
+  return apiClient.get(QUERY_ENDPOINT)
+}
 
-export const cancelarReserva = async (id: string): Promise<void> => {
-  // Llama a: DELETE http://localhost:8080/reservas/123 (requiere token)
-  return apiClient.delete(`${RESERVAS_ENDPOINT}/${id}`);
-};
+/**
+ * Obtiene una reserva específica por su ID.
+ * GET /reservas/{id}
+ */
+export const getReservaById = async (id: string): Promise<Reserva> => {
+  return apiClient.get(`${QUERY_ENDPOINT}/${id}`)
+}
+
+// --- Métodos de Comando (reserva-admin-command-controller) ---
+
+/**
+ * Crea una nueva reserva.
+ * POST /reservas
+ * (Requiere token de Admin o usuario según lógica)
+ */
+export const createReserva = async (data: CreateReservaPayload): Promise<Reserva> => {
+  console.log("Creando reserva con datos:", data)
+  return apiClient.post(QUERY_ENDPOINT, data)
+}
+
+/**
+ * Actualiza la información de una reserva.
+ * PUT /reservas/{id}
+ * (Requiere token de Admin)
+ */
+export const updateReserva = async (id: string, data: UpdateReservaPayload): Promise<void> => {
+  return apiClient.put(`${QUERY_ENDPOINT}/${id}`, data)
+}
+
+/**
+ * Elimina una reserva.
+ * DELETE /reservas/{id}
+ * (Requiere token de Admin)
+ */
+export const deleteReserva = async (id: string): Promise<void> => {
+  return apiClient.delete(`${QUERY_ENDPOINT}/${id}`)
+}
