@@ -17,6 +17,9 @@ export function PublicNavbar() {
           <Link href="/planes" className="text-sm font-medium hover:text-primary transition-colors">
             Planes
           </Link>
+          <Link href="/tus-reservas" className="text-sm font-medium hover:text-primary transition-colors">
+            Tus Reservas
+          </Link>
           <Link href="/iniciar-sesion" className="text-sm font-medium hover:text-primary transition-colors">
             Iniciar Sesión
           </Link>

@@ -19,12 +19,12 @@ export interface Plan {
 export interface Reserva {
   reservaId: string;
   usuario: string;
-  guia: string;
-  plan: string;
+  guia: Guia | string;
+  plan: Plan | string;
   participantes: number;
   refrigerio: "DESAYUNO" | "ALMUERZO" | "MERIENDA" | "CENA";
   fechaReserva: string;
-  estado: "PENDIENTE" | "CONFIRMADA" | "CANCELADA";
+  estado: "PENDIENTE" | "CONFIRMADA" | "CANCELADA" | string;
   precioTotal: number;
 }
 
