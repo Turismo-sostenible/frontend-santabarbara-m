@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PublicNavbar } from "@/components/public-navbar"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     username: "",
     name: "",
@@ -46,16 +48,27 @@ export default function RegisterPage() {
         if (response.status === 400 || response.status === 409) {
           toast.error("Error en el registro. Verifica tus datos e intenta nuevamente.")
         } else {
-          toast.error("Error del servidor. Por favor, intenta más tarde.")
+          //toast.error("Error del servidor. Por favor, intenta más tarde.")
+          toast.error("Error en el registro. Usuario o correo electrónico ya registrado.")
         }
         return;
       }
+
+      toast.success("¡Registro Exitoso!", {
+        description: "Tu cuenta ha sido creada. ¡Bienvenido!",
+        duration: 3000 // 3 segundos
+      })
+
+      setTimeout(() => {
+        router.push('/iniciar-sesion')
+      }, 3000)
 
       const data = await response.json()
       
 
     }catch (err: any) {
       console.error("Error durante el registro:", err.message)
+      toast.error("Error en el registro. Verifica tus datos e intenta nuevamente.")
     }
   }
 
@@ -122,7 +135,7 @@ export default function RegisterPage() {
                 <Label htmlFor="edad">Edad</Label>
                 <Input
                   id="edad"
-                  name="edad"
+                  name="age"
                   type="number"
                   placeholder="Tu edad"
                   min="1"
@@ -164,7 +177,7 @@ export default function RegisterPage() {
                 <Label htmlFor="telefono">Teléfono</Label>
                 <Input
                   id="telefono"
-                  name="telefono"
+                  name="phone"
                   type="tel"
                   placeholder="+57 300 123 4567"
                   value={formData.phone}
@@ -177,7 +190,7 @@ export default function RegisterPage() {
                 <Label htmlFor="direccion">Dirección</Label>
                 <Input
                   id="direccion"
-                  name="direccion"
+                  name="address"
                   type="text"
                   placeholder="Calle 123 #45-67"
                   value={formData.address}

@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css" // Asegúrate que la importación de globals.css esté aquí
+import { Toaster } from "@/components/ui/sonner"
 
 // 1. Asigna las fuentes a las variables CSS que usa shadcn/Tailwind
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-sans`}
       >
         {children}
+        <Toaster richColors position="top-right"/>
       </body>
     </html>
   )
