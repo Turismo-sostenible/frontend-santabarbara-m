@@ -15,7 +15,7 @@ export function PublicNavbar() {
   useEffect(() => {
     //Revisar si el componente se está ejecutando en el cliente
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("authToken")
       if (token) {
         setIsLoggedIn(true)
       }

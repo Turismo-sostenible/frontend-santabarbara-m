@@ -135,11 +135,15 @@ export interface LoginPayload {
 
 // Payload para el registro
 export interface RegisterPayload {
+  username:string;
   name: string;
+  lastName: string;
   email: string;
   password: string;
   phone: string;
   address: string;
+  age:number;
+  role:string;
 }
 
 // Respuesta del login
@@ -147,4 +151,14 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   usuario: Usuario;
+}
+
+export interface UserProfile {
+  id: string;
+  username: string;
+  name: string;
+  lastName: string; // <-- Viene de tu DTO
+  age: number;      // <-- Viene de tu DTO
+  role: "CLIENT" | "ADMINISTRATOR" | "TOURIST_GUIDE";
+  email: string;
 }

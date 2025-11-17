@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import "./globals.css" // Asegúrate que la importación de globals.css esté aquí
 import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "next-themes"
 
 // 1. Asigna las fuentes a las variables CSS que usa shadcn/Tailwind
 const inter = Inter({
@@ -26,7 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    // (Es necesario para que next-themes no lance un error en la consola)
+    <html lang="es" suppressHydrationWarning>
       {/*
        * 2. Combina las variables de las fuentes en el className.
        * - ${inter.variable} -> activa la variable --font-sans
@@ -36,8 +38,15 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} font-sans`}
       >
-        {children}
-        <Toaster richColors position="top-right"/>
+       <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        > 
+          {children}
+          <Toaster richColors position="top-right"/>
+        </ThemeProvider>
       </body>
     </html>
   )

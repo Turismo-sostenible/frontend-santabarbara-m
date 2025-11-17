@@ -1,5 +1,5 @@
 // src/lib/api.ts
-import { AuthResponse } from "@/types"; // Importamos nuestros tipos
+import { AuthResponse, Usuario } from "@/types"; // Importamos nuestros tipos
 
 // 1. Obtenemos la URL del API Gateway
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
@@ -7,9 +7,10 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
 /**
  * Guarda la información de autenticación en localStorage.
  */
-export const saveAuthData = (data: AuthResponse) => {
+export const saveAuthData = (data: AuthResponse, tenanId: string) => {
   if (typeof window === "undefined") return; // Asegura que solo se ejecute en el cliente
   localStorage.setItem("authToken", data.accessToken);
+  localStorage.setItem("tenant_id", tenanId);
   if (data.usuario) {
     localStorage.setItem("usuario", JSON.stringify(data.usuario));
   }
@@ -24,12 +25,30 @@ export const getAuthToken = (): string | null => {
 };
 
 /**
+ * Guarda solo el ID del usuario en localStorage.
+ */
+export const saveUserId = (userId: string) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("userId", userId);
+};
+
+/**
  * Elimina la información de autenticación (Logout).
  */
 export const clearAuthData = () => {
   if (typeof window === "undefined") return;
   localStorage.removeItem("authToken");
   localStorage.removeItem("usuario");
+  localStorage.removeItem("tenant_id");
+  localStorage.removeItem("userId");
+};
+
+/**
+ * Guarda solo el objeto de usuario en localStorage.
+ */
+export const saveUser = (usuario: Usuario) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("usuario", JSON.stringify(usuario));
 };
 
 /**
@@ -43,6 +62,10 @@ async function fetchWrapper(
   console.log("API Client initialized");
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
+
+  const tenantId = (typeof window !== "undefined")
+    ? localStorage.getItem("tenant_id")
+    : null;
 
   const defaultHeaders: HeadersInit = {
     "Content-Type": "application/json",

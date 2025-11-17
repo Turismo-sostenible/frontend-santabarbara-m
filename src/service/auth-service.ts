@@ -4,16 +4,22 @@ import type { LoginPayload, RegisterPayload, AuthResponse, Usuario } from "@/typ
 
 const AUTH_ENDPOINT = "/auth";
 
-export const login = async (credentials: LoginPayload): Promise<AuthResponse> => {
+export const login = async (credentials: LoginPayload, tenanId: string): Promise<AuthResponse> => {
   // Llama a: POST http://localhost:8080/auth/login
-  const data = await apiClient.post(`${AUTH_ENDPOINT}/login`, credentials);
-  saveAuthData(data); // Guarda el token y usuario al hacer login
+  const data = await apiClient.post(`${AUTH_ENDPOINT}/login`, credentials, 
+    { headers: {"tenant_id":tenanId}} 
+  );
+  saveAuthData(data, tenanId); // Guarda el token y usuario al hacer login
   return data;
 };
 
-export const register = async (userData: RegisterPayload): Promise<Usuario> => {
+export const register = async (userData: RegisterPayload, tenanId: string): Promise<Usuario> => {
   // Llama a: POST http://localhost:8080/auth/register
-  return apiClient.post(`${AUTH_ENDPOINT}/register`, userData);
+  return apiClient.post(`${AUTH_ENDPOINT}/register`, userData,
+    {
+      headers:{"tenant_id":tenanId}
+    }
+  );
 };
 
 export const logout = () => {

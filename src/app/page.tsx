@@ -1,9 +1,25 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Users, Calendar, Star } from "lucide-react"
 
+import { useState, useEffect } from "react"
+
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    // Revisar solo en el navegador
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("authToken") 
+      if (token) {
+        setIsLoggedIn(true)
+      }
+    }
+  }, [])
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
@@ -30,13 +46,25 @@ export default function HomePage() {
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8">
               <Link href="/planes">Ver Planes</Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
-            >
-              <Link href="/registro">Registrarse</Link>
-            </Button>
+            {isLoggedIn ? (
+              // Si está logueado: Botón "Mi Perfil"
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
+              >
+                <Link href="/perfil">Mi Perfil</Link>
+              </Button>
+            ) : (
+              // Si NO está logueado: Botón "Registrarse"
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
+              >
+                <Link href="/registro">Registrarse</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>

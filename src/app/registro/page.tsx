@@ -12,12 +12,15 @@ import { PublicNavbar } from "@/components/public-navbar"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
+import { register } from "@/service/auth-service"
+import { RegisterPayload } from "@/types"
+
 export default function RegisterPage() {
   const router = useRouter()
   const [formData, setFormData] = useState({
     username: "",
     name: "",
-    lastname: "",
+    lastName: "",
     email: "",
     password: "",
     phone: "",
@@ -30,8 +33,32 @@ export default function RegisterPage() {
     const TENANT_ID = "01-santa-barbara"
     const API_URL = "https://api-gateway-wi8c.onrender.com/auth/register"
 
+    const payload: RegisterPayload = {
+      username: formData.username,
+      name: formData.name,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      address: formData.address,
+      age: parseInt(formData.age), // Convertimos la edad a número
+      role: "CLIENT"
+    }
+
     try {
-      const response = await fetch(API_URL, {
+
+      await register(payload, "01-santa-barbara");
+      
+      toast.success("¡Registro Exitoso!", {
+        description: "Tu cuenta ha sido creada. ¡Bienvenido!",
+        duration: 3000
+      })
+
+      setTimeout(() => {
+        router.push('/iniciar-sesion')
+      }, 2000)
+
+      /*const response = await fetch(API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +90,7 @@ export default function RegisterPage() {
         router.push('/iniciar-sesion')
       }, 3000)
 
-      const data = await response.json()
+      const data = await response.json()*/
       
 
     }catch (err: any) {
@@ -122,10 +149,10 @@ export default function RegisterPage() {
                 <Label htmlFor="apellido">Apellido</Label>
                 <Input
                   id="apellido"
-                  name="lastname"
+                  name="lastName"
                   type="text"
                   placeholder="Pérez"
-                  value={formData.lastname}
+                  value={formData.lastName}
                   onChange={handleChange}
                   required
                 />
