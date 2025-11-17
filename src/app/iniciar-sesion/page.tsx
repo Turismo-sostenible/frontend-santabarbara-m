@@ -84,9 +84,9 @@ export default function LoginPage() {
       if (decodedToken && decodedToken.roles) {
         if (decodedToken.roles.includes("ADMINISTRATOR")) {
           // Redirigir usando el objeto window
-          window.location.assign("/admin/guias");
+          router.push("/admin/guias");
         } else if (decodedToken.roles.includes("CLIENT")) {
-          window.location.assign("/planes");
+          router.push("/planes");
         }
       } else {
         console.error("Token inválido o no contiene la propiedad 'roles'.");
