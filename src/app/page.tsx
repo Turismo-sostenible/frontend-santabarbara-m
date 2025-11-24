@@ -2,11 +2,13 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Users, Calendar, Star } from "lucide-react"
+import { PublicNavbar } from "@/components/public-navbar"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
+      <PublicNavbar />
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 z-0"
