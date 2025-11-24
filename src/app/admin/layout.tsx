@@ -17,11 +17,20 @@ export default function AdminLayout({
         <ul className="space-y-2">
           <li>
             <Link
+              href="/"
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
+            >
+              <Briefcase className="w-5 h-5" />
+              <span>Home</span>
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/admin/dashboard"
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
             >
               <Home className="w-5 h-5" />
-              <span>Dashboard</span>
+              <span>Usuarios</span>
             </Link>
           </li>
           <li>
