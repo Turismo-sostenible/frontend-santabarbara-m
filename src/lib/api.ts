@@ -24,6 +24,21 @@ export const getAuthToken = (): string | null => {
 };
 
 /**
+ * mira si el token ya expiró
+ */
+export function isTokenExpired(token: string): boolean {
+  try {
+    const [, payloadB64] = token.split(".")
+    const json = atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/"))
+    const payload = JSON.parse(json)
+    const now = Math.floor(Date.now() / 1000)
+    return !payload?.exp || payload.exp <= now
+  } catch {
+    return true
+  }
+}
+
+/**
  * Elimina la información de autenticación (Logout).
  */
 export const clearAuthData = () => {

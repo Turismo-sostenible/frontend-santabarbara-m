@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
+import { getAuthToken, isTokenExpired } from "@/lib/api";
 // Importa el endpoint de reservas:
 import { createReserva } from "@/service/reservas-service"
 import { getGuias } from "@/service/guias-service";
@@ -77,6 +78,23 @@ export default function ReservasPage() {
 
     useEffect(() => {
         try {
+            const token = getAuthToken()
+            if (!token || isTokenExpired(token)) {
+                router.push("/iniciar-sesion")
+                return
+            }
+        } catch (e) {
+            console.error("Failed to read selectedPlan from sessionStorage", e)
+        }
+    }, [router])
+
+    useEffect(() => {
+        try {
+            const token = getAuthToken()
+            if (!token) {
+                router.push("/iniciar-sesion")
+                return
+            }
             const s = sessionStorage.getItem("selectedPlan")
             if (s) setPlan(JSON.parse(s))
             getGuias().then(setGuias);
