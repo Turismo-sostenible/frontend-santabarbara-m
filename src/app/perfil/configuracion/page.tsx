@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-//import { Switch } from "@/components/ui/switch" // <-- El interruptor que añadiste
 import { toast } from "sonner"
 import { apiClient } from "@/lib/api"
 import { useTheme } from "next-themes" // <-- Para el modo oscuro
