@@ -34,6 +34,9 @@ export function PublicNavbar() {
           <Link href="/planes" className="text-sm font-medium hover:text-primary transition-colors">
             Planes
           </Link>
+          <Link href="/tus-reservas" className="text-sm font-medium hover:text-primary transition-colors">
+            Tus Reservas
+          </Link>
           {/* Renderizado Condicional */}
           {isLoggedIn ? (
             //Si esta logueado, muestra el boton de perfil
