@@ -5,12 +5,22 @@
  */
 export interface Plan {
   id: string;
+  imagenes?: string[]; // URLs de las imágenes
   nombre: string;
   descripcion: string;
-  precio: number;
-  duracion: string;
-  imagen: string;
+  precioValor?: number; // Para compatibilidad con frontend
+  precioMoneda?: "COP" | "USD"; // Para compatibilidad con frontend
+  precio?: {
+    valor: number;
+    moneda: "COP" | "USD";
+  }; // Estructura del backend
+  duracion: number; // en horas
   cupoMaximo: number;
+  fechasDisponibles?: Array<{ desde: string; hasta: string }>; // ISO date strings
+  tenantId?: string;
+  estado?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
@@ -45,7 +55,14 @@ export interface UpdateReservaPayload {
 }
 
 // Tipos para la estructura de tiempo
-type DiaSemana = "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+type DiaSemana =
+  | "MONDAY"
+  | "TUESDAY"
+  | "WEDNESDAY"
+  | "THURSDAY"
+  | "FRIDAY"
+  | "SATURDAY"
+  | "SUNDAY";
 
 interface Hora {
   hour: number;
@@ -67,7 +84,7 @@ export interface HorarioGuia {
 // Interfaz para el PAYLOAD (lo que ENVIAMOS) de una franja horaria
 interface FranjaHorariaPayload {
   horaInicio: string; // "HH:MM"
-  horaFin: string;   // "HH:MM"
+  horaFin: string; // "HH:MM"
 }
 
 // Interfaz para el PAYLOAD (lo que ENVIAMOS) de un horario
@@ -103,7 +120,6 @@ export interface UpdateGuiaPayload {
   email: string;
   telefono: string;
 }
-
 
 /**
  * Interfaces para el Microservicio de "Login y Usuarios"

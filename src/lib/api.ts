@@ -84,6 +84,7 @@ async function fetchWrapper(
 
   const defaultHeaders: HeadersInit = {
     "Content-Type": "application/json",
+    ...((options.headers as Record<string, string>) || {}),
   };
 
   // Si tenemos un token, lo adjuntamos a la cabecera
@@ -95,12 +96,15 @@ async function fetchWrapper(
     defaultHeaders["Authorization"] = `Bearer ${token}`;
   }
 
+  // Si el cuerpo es un objeto convertir a JSON.
+  if (options.body && !(options.body instanceof FormData)) {
+    defaultHeaders["Content-Type"] = "application/json";
+    options.body = JSON.stringify(options.body);
+  }
+
   const finalOptions: RequestInit = {
     ...options,
-    headers: {
-      ...defaultHeaders,
-      ...options.headers,
-    },
+    headers: defaultHeaders,
   };
 
   const response = await fetch(url, finalOptions);
@@ -128,14 +132,14 @@ export const apiClient = {
     fetchWrapper(endpoint, {
       ...options,
       method: "POST",
-      body: JSON.stringify(body),
+      body,
     }),
 
   put: (endpoint: string, body: any, options: RequestInit = {}) =>
     fetchWrapper(endpoint, {
       ...options,
       method: "PUT",
-      body: JSON.stringify(body),
+      body,
     }),
 
   delete: (endpoint: string, options: RequestInit = {}) =>
