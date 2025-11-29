@@ -87,8 +87,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-secondary" />
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Guías Certificados</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -97,8 +97,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Reserva Fácil</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
