@@ -5,15 +5,22 @@
  */
 export interface Plan {
   id: string;
-  imagenes: string[]; // URLs de las imágenes
+  imagenes?: string[]; // URLs de las imágenes
   nombre: string;
   descripcion: string;
-  precioValor: number;
-  precioMoneda: "COP" | "USD";
+  precioValor?: number; // Para compatibilidad con frontend
+  precioMoneda?: "COP" | "USD"; // Para compatibilidad con frontend
+  precio?: {
+    valor: number;
+    moneda: "COP" | "USD";
+  }; // Estructura del backend
   duracion: number; // en horas
   cupoMaximo: number;
-  fechasDisponibles: Array<{ desde: string; hasta: string }>; // ISO date strings
-  files: File[];
+  fechasDisponibles?: Array<{ desde: string; hasta: string }>; // ISO date strings
+  tenantId?: string;
+  estado?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 /**
