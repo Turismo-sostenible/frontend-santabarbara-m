@@ -54,9 +54,20 @@ export default function ConfiguracionPage() {
       return;
     }
 
+    const tenantId = localStorage.getItem("tenant_id"); // "01-santa-barbara"
+    const userId = localStorage.getItem("userId");
+
+    if (!userId || !tenantId) {
+      toast.error("Error: No se identificó al usuario o tenant (Sesión incompleta).");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // 2. Llama a tu backend (necesitarás crear este endpoint)
-      await apiClient.put("/auth/change-password", {
+      await apiClient.put("/users/change-password", {
+        userId: userId,
+        tenantId: tenantId,
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword,
       });

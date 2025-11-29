@@ -14,23 +14,7 @@ import { login } from "@/service/auth-service"
 
 import { apiClient, saveAuthData, saveUserId } from "@/lib/api";
 import { AuthResponse, LoginPayload } from "@/types";
-
-function parseJwt(token: string) {
-  if (!token) { return null; }
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  } catch (e) {
-    console.error("Error al decodificar el JWT:", e);
-    return null;
-  }
-}
-
+import { decodeJwt } from "@/lib/utils"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
@@ -44,7 +28,6 @@ export default function LoginPage() {
     setError(null) // Reset error state before new submission
 
     const TENANT_ID = "01-santa-barbara"
-    //const API_URL = "https://api-gateway-wi8c.onrender.com/auth/login"
 
     try{
       // Prepara el payload que espera el servicio
@@ -57,7 +40,7 @@ export default function LoginPage() {
       const data: AuthResponse = await login(credentials, TENANT_ID);
 
       // Decodifica el token
-      const decodedToken = parseJwt(data.accessToken)
+      const decodedToken = decodeJwt(data.accessToken)
       if (!decodedToken || !decodedToken.sub || !decodedToken.roles) {
         setError("Token inválido o incompleto.");
         return;

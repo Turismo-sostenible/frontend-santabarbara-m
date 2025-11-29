@@ -86,33 +86,13 @@ export function UsuarioForm({
         ...values,
       };
       onSubmitSuccess(updatedUsuario);
-      toast.success("Usuario actualizado");
     } else {
       const newUsuario: Usuario = {
         id: Math.random().toString(36).substr(2, 9), // ID aleatorio simulado
         ...values,
       };
       onSubmitSuccess(newUsuario);
-      toast.success("Usuario creado exitosamente");
     }
-      /*try {
-        if (isEditMode) {
-          // Modo Edición
-          const payload: UpdateUserPayload = values;
-          await updateUser(usuario.id, payload);
-          toast.success("Usuario actualizado");
-        } else {
-          // Modo Creación
-          const payload: CreateUserPayload = values;
-          await createUser(payload);
-          toast.success("Usuario creado exitosamente");
-        }
-        onSubmitSuccess(); // Llama al callback para recargar la tabla y cerrar
-      } catch (error) {
-        toast.error(`Error al ${isEditMode ? "actualizar" : "crear"}`, {
-          description: (error as Error).message,
-        });
-      }*/
     };
 
 

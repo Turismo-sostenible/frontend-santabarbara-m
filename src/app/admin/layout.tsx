@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { clearAuthData } from "@/lib/api";
 
 const navLinks = [
-  { href: "/", label: "Home", icon: Briefcase}
+  { href: "/", label: "Home", icon: Briefcase},
   { href: "/admin/dashboard", label: "Dashboard", icon: Home },
   { href: "/admin/guias", label: "Guías", icon: Users },
   { href: "/admin/planes", label: "Planes", icon: Briefcase },

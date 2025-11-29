@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-function parseJwt(token: string) {
+export function decodeJwt(token: string) {
   if (!token) { return null; }
   try {
     const base64Url = token.split('.')[1];

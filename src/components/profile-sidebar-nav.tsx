@@ -23,11 +23,6 @@ const navItems = [
     icon: User,
   },
   {
-    href: "/perfil/mis-reservas",
-    label: "Mis Reservas",
-    icon: CalendarDays,
-  },
-  {
     href: "/perfil/configuracion",
     label: "Configuración",
     icon: Settings,

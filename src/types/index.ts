@@ -157,8 +157,8 @@ export interface UserProfile {
   id: string;
   username: string;
   name: string;
-  lastName: string; // <-- Viene de tu DTO
-  age: number;      // <-- Viene de tu DTO
+  lastName: string; 
+  age: number;      
   role: "CLIENT" | "ADMINISTRATOR" | "TOURIST_GUIDE";
   email: string;
 }

@@ -18,10 +18,7 @@ export function UserProfileButton() {
   const router = useRouter()
 
   const handleLogout = () => {
-    // 1. Limpiar el token de localStorage
     clearAuthData();
-    // 2. Redirigir a la página de inicio
-    // Usamos window.location para forzar recarga y limpiar estado
     window.location.href = "/iniciar-sesion" 
   }
 
@@ -41,9 +38,6 @@ export function UserProfileButton() {
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => router.push('/perfil')}>
           Perfil
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push('/mis-reservas')}>
-          Mis Reservas
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => router.push('/perfil/configuracion')}>Configuración</DropdownMenuItem>
         <DropdownMenuSeparator />

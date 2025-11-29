@@ -3,6 +3,7 @@
 import React from "react";
 import { PublicNavbar } from "@/components/public-navbar"; // Asumo que quieres la navbar principal arriba
 import { ProfileSidebarNav } from "@/components/profile-sidebar-nav"; // Este lo crearemos ahora
+import { Toaster } from "@/components/ui/sonner";
 
 export default function PerfilLayout({
   children,
@@ -26,7 +27,7 @@ export default function PerfilLayout({
         <main className="w-3/4 lg:w-4/5">
           {children}
         </main>
-        
+        <Toaster richColors />
       </div>
     </div>
   );

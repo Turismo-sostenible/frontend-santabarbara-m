@@ -2,25 +2,44 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Mountain } from "lucide-react"
-
+import { Mountain, LayoutDashboard } from "lucide-react"
 import { useEffect, useState } from "react"
 import { UserProfileButton } from "./user-profile-button"
+import { decodeJwt } from "@/lib/utils"
 
 export function PublicNavbar() {
-  //Estado para verificar si el usuario está logueado
   const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
-  //Efecto para verificar si el usuario está logueado
   useEffect(() => {
-    //Revisar si el componente se está ejecutando en el cliente
+    setIsMounted(true)
+
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("authToken")
+      
       if (token) {
         setIsLoggedIn(true)
+        
+        const decodedToken = decodeJwt(token)
+        
+        if (decodedToken) {
+          
+          if (decodedToken.roles && Array.isArray(decodedToken.roles)) {
+             if (decodedToken.roles.includes("ADMINISTRATOR")) {
+                setUserRole("ADMINISTRATOR")
+             } else {
+                setUserRole("CLIENT")
+             }
+          } 
+          // Fallback por si en el futuro cambia a singular
+          else if (decodedToken.role === "ADMINISTRATOR") {
+             setUserRole("ADMINISTRATOR")
+          }
+        }
       }
     }
-  }, [])//Se ejecuta solo una vez al montar el componente
+  }, [])
 
   return (
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -31,25 +50,38 @@ export function PublicNavbar() {
         </Link>
 
         <div className="flex items-center gap-6">
+          
+          {/* El botón ahora sí aparecerá si userRole se setea correctamente arriba */}
+          {isMounted && userRole === "ADMINISTRATOR" && (
+            <Button variant="ghost" asChild className="text-sm font-medium">
+              <Link href="/admin/guias" className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Panel de Control
+              </Link>
+            </Button>
+          )}
+
           <Link href="/planes" className="text-sm font-medium hover:text-primary transition-colors">
             Planes
           </Link>
-          <Link href="/tus-reservas" className="text-sm font-medium hover:text-primary transition-colors">
+
+          <Link 
+            href={isLoggedIn ? "/tus-reservas" : "/iniciar-sesion"} 
+            className="text-sm font-medium hover:text-primary transition-colors"
+          >
             Tus Reservas
           </Link>
-          {/* Renderizado Condicional */}
-          {isLoggedIn ? (
-            //Si esta logueado, muestra el boton de perfil
+
+          {isMounted && isLoggedIn ? (
             <UserProfileButton/>
           ):(
-            //Si no esta logueado, muestra los botones publicos
             <>
-            <Link href="/iniciar-sesion" className="text-sm font-medium hover:text-primary transition-colors">
-              Iniciar Sesión
-            </Link>
-            <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
-              <Link href="/registro">Registro</Link>
-            </Button>
+              <Link href="/iniciar-sesion" className="text-sm font-medium hover:text-primary transition-colors">
+                Iniciar Sesión
+              </Link>
+              <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+                <Link href="/registro">Registro</Link>
+              </Button>
             </>
           )}
         </div>
