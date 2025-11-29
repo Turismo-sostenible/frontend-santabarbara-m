@@ -7,7 +7,7 @@ import type {
 } from "@/types"
 
 //const QUERY_ENDPOINT = "/api/v1/reservas"
-const QUERY_ENDPOINT = "http://localhost:8080"
+const QUERY_ENDPOINT = "http://localhost:8085"
 
 // --- Métodos de Consulta (reserva-query-controller) ---
 
