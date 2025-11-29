@@ -2,7 +2,8 @@
 import { AuthResponse, Usuario } from "@/types"; // Importamos nuestros tipos
 
 // 1. Obtenemos la URL del API Gateway
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL;
+//const API_BASE_URL = process.env.NEXT_PUBLIC_API_GATEWAY_URL ;
+const API_BASE_URL = "";
 
 /**
  * Guarda la información de autenticación en localStorage.

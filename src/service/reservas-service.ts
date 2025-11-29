@@ -6,7 +6,8 @@ import type {
   UpdateReservaPayload
 } from "@/types"
 
-const QUERY_ENDPOINT = "/api/v1/reservas"
+//const QUERY_ENDPOINT = "/api/v1/reservas"
+const QUERY_ENDPOINT = "http://localhost:8080"
 
 // --- Métodos de Consulta (reserva-query-controller) ---
 

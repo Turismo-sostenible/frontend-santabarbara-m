@@ -16,7 +16,7 @@ type Plan = {
     id: string
     nombre: string
     descripcion: string
-    precio: number
+    precioValor: number
     duracion: string
     imagen: string
 }
@@ -96,7 +96,15 @@ export default function ReservasPage() {
                 return
             }
             const s = sessionStorage.getItem("selectedPlan")
-            if (s) setPlan(JSON.parse(s))
+            //console.log("selectedPlan crudo desde sessionStorage:", s);
+            if (s) {
+                const parsed = JSON.parse(s);
+                //console.log("selectedPlan parseado:", parsed);
+                setPlan(parsed);
+            } else {
+                console.warn("No se encontró selectedPlan en sessionStorage");
+            }
+
             getGuias().then(setGuias);
         } catch (e) {
             console.error("Failed to read selectedPlan from sessionStorage", e)
@@ -115,7 +123,7 @@ export default function ReservasPage() {
             minimumFractionDigits: 0,
         }).format(price)
 
-    const precioPersona = plan1 ? plan1.precio : 45000
+    const precioPersona = plan1 ? plan1.precioValor : 45000
     const kitsTurismo = 10000
     const total =
         participantes * precioPersona + participantes * kitsTurismo + participantes * precioRefrigerio
@@ -223,8 +231,10 @@ export default function ReservasPage() {
                                     onChange={e => setFecha(e.target.value)}
                                 >
                                     <option value="">Selecciona fecha</option>
-                                    <option>2025-11-10</option>
-                                    <option>2025-11-11</option>
+                                    <option>2025-12-10</option>
+                                    <option>2025-12-11</option>
+                                    <option>2025-12-12</option>
+                                    <option>2025-12-15</option>
                                 </select>
                             </div>
 
