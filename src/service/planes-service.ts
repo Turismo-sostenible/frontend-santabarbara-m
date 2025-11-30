@@ -1,8 +1,23 @@
 // src/services/planes-service.ts
 import type { Plan } from "@/types";
 
-// Base de datos en memoria (Mock Data) adaptada a la nueva interfaz
-const MOCK_PLANES: Plan[] = [
+// TIPOS EXPORTADOS REQUERIDOS por las vistas de Creación/Edición
+export interface PlanCreationData { 
+  nombre: string;
+  descripcion: string;
+  precioValor: number;
+  duracion: number; // en horas
+  cupoMaximo: number;
+  // Otros campos necesarios para la creación
+}
+// Alias para la actualización
+export type PlanUpdateData = PlanCreationData; 
+
+// Helper para crear IDs temporales
+const generateId = () => `plan-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`;
+
+// Base de datos en memoria (Mutable)
+let MOCK_PLANES: Plan[] = [
   {
     id: "1",
     nombre: "Caminata Sierra Nevada",
@@ -10,10 +25,11 @@ const MOCK_PLANES: Plan[] = [
     precioValor: 150000,
     precioMoneda: "COP",
     precio: { valor: 150000, moneda: "COP" },
-    duracion: 8, // Horas (number)
+    duracion: 8,
     imagenes: ["/mountain-hiking-trail.png"],
     cupoMaximo: 10,
-    estado: "ACTIVO"
+    estado: "ACTIVO",
+    createdAt: new Date().toISOString(),
   },
   {
     id: "2",
@@ -25,60 +41,14 @@ const MOCK_PLANES: Plan[] = [
     duracion: 4,
     imagenes: ["/coffee-plantation-colombia.jpg"],
     cupoMaximo: 15,
-    estado: "ACTIVO"
-  },
-  {
-    id: "3",
-    nombre: "Rafting Río Magdalena",
-    descripcion: "Aventura extrema en las aguas del río más importante de Colombia",
-    precioValor: 200000,
-    precioMoneda: "COP",
-    precio: { valor: 200000, moneda: "COP" },
-    duracion: 6,
-    imagenes: ["/rafting-river-adventure.jpg"],
-    cupoMaximo: 8,
-    estado: "ACTIVO"
-  },
-  {
-    id: "4",
-    nombre: "Avistamiento de Aves",
-    descripcion: "Observa especies únicas en su hábitat natural",
-    precioValor: 120000,
-    precioMoneda: "COP",
-    precio: { valor: 120000, moneda: "COP" },
-    duracion: 5,
-    imagenes: ["/bird-watching-colombia.jpg"],
-    cupoMaximo: 6,
-    estado: "ACTIVO"
-  },
-  {
-    id: "5",
-    nombre: "Parapente Valle del Cauca",
-    descripcion: "Vuela sobre los hermosos paisajes del Valle del Cauca",
-    precioValor: 180000,
-    precioMoneda: "COP",
-    precio: { valor: 180000, moneda: "COP" },
-    duracion: 3,
-    imagenes: ["/paragliding-valley-landscape.jpg"],
-    cupoMaximo: 4,
-    estado: "ACTIVO"
-  },
-  {
-    id: "6",
-    nombre: "Tour Histórico Cartagena",
-    descripcion: "Recorre la ciudad amurallada y conoce su fascinante historia",
-    precioValor: 90000,
-    precioMoneda: "COP",
-    precio: { valor: 90000, moneda: "COP" },
-    duracion: 4,
-    imagenes: ["/cartagena-historic-city-walls.jpg"],
-    cupoMaximo: 20,
-    estado: "ACTIVO"
+    estado: "ACTIVO",
+    createdAt: new Date().toISOString(),
   },
 ];
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// --- LECTURA ---
 export const getPlanes = async (): Promise<Plan[]> => {
   await delay(500);
   return [...MOCK_PLANES];
@@ -89,8 +59,65 @@ export const getPlanById = async (id: string): Promise<Plan> => {
   const plan = MOCK_PLANES.find((p) => p.id === id);
   
   if (!plan) {
-    throw new Error(`No se encontró el plan con id: ${id}`);
+    throw new Error(`Plan con ID ${id} no encontrado`);
   }
   
   return plan;
+};
+
+// --- CREACIÓN (Exportada) ---
+export const createPlan = async (data: PlanCreationData, files?: File[]): Promise<Plan> => {
+    await delay(1000); 
+
+    if (files && files.length > 0) {
+        console.log(`Simulando subida de ${files.length} archivos para el plan: ${data.nombre}`);
+    }
+
+    const newPlan: Plan = {
+        id: generateId(),
+        nombre: data.nombre,
+        descripcion: data.descripcion,
+        precioValor: data.precioValor,
+        precioMoneda: "COP",
+        precio: { valor: data.precioValor, moneda: "COP" },
+        duracion: data.duracion,
+        cupoMaximo: data.cupoMaximo,
+        imagenes: files && files.length > 0 ? [`/placeholder.svg?text=${data.nombre}`] : ["/placeholder.svg?text=Nuevo+Plan"],
+        estado: "PENDIENTE",
+        createdAt: new Date().toISOString(),
+    };
+
+    MOCK_PLANES.push(newPlan);
+    return newPlan;
+};
+
+// --- ACTUALIZACIÓN (Exportada) ---
+export const updatePlan = async (id: string, data: PlanUpdateData | PlanCreationData): Promise<Plan> => {
+    await delay(1000);
+    const index = MOCK_PLANES.findIndex(p => p.id === id);
+
+    if (index === -1) {
+        throw new Error(`Plan con ID ${id} no encontrado para actualizar.`);
+    }
+
+    const updatedPlan: Plan = {
+        ...MOCK_PLANES[index],
+        ...data,
+        precioMoneda: MOCK_PLANES[index].precioMoneda,
+        precio: { valor: data.precioValor, moneda: MOCK_PLANES[index].precioMoneda || "COP" },
+        updatedAt: new Date().toISOString(),
+    };
+
+    MOCK_PLANES[index] = updatedPlan;
+    return updatedPlan;
+};
+
+// --- ELIMINACIÓN (Exportada) ---
+export const deletePlan = async (id: string): Promise<void> => {
+  await delay(600);
+  const initialLength = MOCK_PLANES.length;
+  MOCK_PLANES = MOCK_PLANES.filter(p => p.id !== id);
+  if (MOCK_PLANES.length === initialLength) {
+    throw new Error(`Plan con ID ${id} no encontrado para eliminar.`);
+  }
 };

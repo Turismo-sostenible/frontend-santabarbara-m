@@ -1,4 +1,3 @@
-// src/app/admin/layout.tsx
 "use client"
 
 import Link from "next/link";
@@ -11,9 +10,13 @@ import { Button } from "@/components/ui/button";
 import { clearAuthData } from "@/lib/api";
 
 const navLinks = [
-  { href: "/", label: "Home", icon: Briefcase},
-  { href: "/admin/dashboard", label: "Dashboard", icon: Home },
-  { href: "/admin/guias", label: "Guías", icon: Users },
+  // 1. Enlace a la página pública principal
+  { href: "/", label: "Home Público", icon: Home}, 
+  // 2. Enlace a la gestión de Usuarios (Donde tu AdminPage está funcionando)
+  { href: "/admin", label: "Usuarios", icon: Users }, 
+  // 3. Enlace a la gestión de Guías
+  { href: "/admin/guias", label: "Guías", icon: Briefcase },
+  // 4. Enlace a la gestión de Planes
   { href: "/admin/planes", label: "Planes", icon: Briefcase },
 ];
 
@@ -31,78 +34,49 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen">
       {/* Sidebar de Navegación */}
-      <nav className="w-64 bg-muted/40 p-6 border-r flex flex-col">
-        <h2 className="text-xl font-bold mb-6">Panel Admin</h2>
+      <nav className="w-64 bg-muted/40 p-6 border-r flex flex-col justify-between">
+        <div>
+          <h2 className="text-xl font-bold mb-6">Panel Admin</h2>
 
-        <ul className="space-y-2">
-        {navLinks.map((link) => {
-            // Comprueba si el enlace actual es el activo
-            const isActive = pathname === link.href;
+          <ul className="space-y-2">
+          {navLinks.map((link) => {
+              // Comprueba si el enlace actual es el activo o si la ruta comienza con el href
+              const isActive = 
+                  pathname === link.href || 
+                  (link.href !== "/" && pathname.startsWith(link.href + "/"));
 
-            return (
-              <li key={link.label}>
-                <Button
-                  asChild // Permite que el Botón se comporte como un Link
-                  // variant="default" (negro) si está activo
-                  // variant="ghost" (transparente) si no
-                  variant={isActive ? "default" : "ghost"}
-                  // Clases para alinear el texto a la izquierda y añadir espacio
-                  className="w-full justify-start gap-3"
-                >
-                  <Link href={link.href}>
-                    <link.icon className="w-5 h-5" />
-                    <span>{link.label}</span>
-                  </Link>
-                </Button>
-              </li>
-            );
-          })}
-          {/* 
-          <li>
-            <Link
-              href="/"
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
+              return (
+                <li key={link.label}>
+                  <Button
+                    asChild 
+                    // variant="default" (negro) si está activo
+                    // variant="ghost" (transparente) si no
+                    variant={isActive ? "default" : "ghost"}
+                    // Clases para alinear el texto a la izquierda y añadir espacio
+                    className="w-full justify-start gap-3"
+                  >
+                    <Link href={link.href}>
+                      <link.icon className="w-5 h-5" />
+                      <span>{link.label}</span>
+                    </Link>
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        
+        {/* Botón de Logout */}
+        <div className="mt-8">
+            <Button
+              onClick={handleLogout}
+              variant="ghost"
+              className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 gap-3"
             >
-              <Briefcase className="w-5 h-5" />
-              <span>Home</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/dashboard"
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
-            >
-              <Home className="w-5 h-5" />
-              <span>Usuarios</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/guias"
-              className="flex items-center gap-3 p-2 rounded-lg bg-primary text-primary-foreground" // Resaltado
-            >
-              <Users className="w-5 h-5" />
-              <span>Guías</span>
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/admin/planes"
-              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted"
-            >
-              <Briefcase className="w-5 h-5" />
-              <span>Planes</span>
-            </Link>
-          </li>*/}
-        </ul>
-        <Button
-          onClick={handleLogout}
-          variant="ghost"
-          className="justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-        >
-          <LogOut className="mr-2 h-4 w-4" />
-          Cerrar Sesion
-        </Button>
+              <LogOut className="w-5 h-5" />
+              Cerrar Sesion
+            </Button>
+        </div>
       </nav>
 
       {/* Contenido Principal */}

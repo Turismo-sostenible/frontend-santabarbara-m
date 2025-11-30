@@ -20,7 +20,8 @@ import { MoreHorizontal, PlusCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Usuario } from "@/types";
-import { UsuarioForm } from "./user-form";
+// CORRECCIÓN: Importamos como default
+import UsuarioForm from "./user-form"; 
 
 const FAKE_USUARIOS: Usuario[] = [
   { id: '1', name: 'Ana López', email: 'ana.lopez@unicauca.edu.co', role: "ADMINISTRATOR" },
@@ -29,20 +30,19 @@ const FAKE_USUARIOS: Usuario[] = [
 ];
 
 export default function AdminPage() {
-  const [usuarios, setUsuarios] = useState<Usuario[]>(FAKE_USUARIOS);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedUsuario, setSelectedUsuario] = useState<Usuario | null>(null);
 
+  // Carga inicial y persistencia en localStorage
   useEffect(() => {
-    // Verificamos si estamos en el navegador
     if (typeof window !== "undefined") {
       const storedUsers = localStorage.getItem("usuarios_db");
       if (storedUsers) {
-        // Si hay datos guardados, los usamos
         setUsuarios(JSON.parse(storedUsers));
       } else {
-        // Si no hay nada (primera vez), guardamos los FAKE para inicializar
         localStorage.setItem("usuarios_db", JSON.stringify(FAKE_USUARIOS));
+        setUsuarios(FAKE_USUARIOS);
       }
     }
   }, []);
@@ -86,9 +86,9 @@ export default function AdminPage() {
       toast.success("Usuario actualizado");
     } else {
       // CREAR
-      const nuevoUsuario = {
+      const nuevoUsuario: Usuario = { // Aseguramos el tipo
         ...usuarioData,
-        id: usuarioData.id || Math.random().toString(36).substr(2, 9),
+        id: Math.random().toString(36).substr(2, 9),
       };
       nuevaLista = [...usuarios, nuevoUsuario];
       toast.success("Usuario creado");
@@ -96,9 +96,8 @@ export default function AdminPage() {
 
     // Guardar en LocalStorage
     updateUsuariosState(nuevaLista);
-    setTimeout(() => {
-      setIsFormOpen(false);
-    }, 0);
+    // Cierra el formulario
+    setIsFormOpen(false);
   };
 
   return (
