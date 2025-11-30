@@ -1,152 +1,177 @@
-"use client";
+"use client"
 
+import { useEffect, useState } from "react"
 import { PublicNavbar } from "@/components/public-navbar"
 import { Button } from "@/components/ui/button"
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { getReservas } from "@/service/reservas-service"
-import { Reserva } from "@/types"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react"
-import { useEffect, useState } from "react"
-import { toast } from "sonner"
-import { ReservaForm } from "./reservas-form"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { Badge } from "@/components/ui/badge"
+import { Loader2, Trash2 } from "lucide-react"
 
+// Importamos los servicios y tipos actualizados
+import { getMisReservas, cancelarReserva } from "@/service/reservas-service"
+import { getPlanes } from "@/service/planes-service"
+import type { Reserva, Plan } from "@/types"
 
-export default function PlanesPage() {
-    const [isLoading, setIsLoading] = useState(true);
-    const [reservas, setReservas] = useState<Reserva[]>([]);
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [selectedReserva, setSelectedReserva] = useState<Reserva | null>(null);
+export default function TusReservasPage() {
+  const [reservas, setReservas] = useState<Reserva[]>([])
+  const [planes, setPlanes] = useState<Plan[]>([])
+  const [loading, setLoading] = useState(true)
+  const [cancelling, setCancelling] = useState<string | null>(null)
 
-    // Cargar todos las reservas
-    const fetchReservas = async () => {
-        setIsLoading(true);
-        try {
-            const data = await getReservas();
-            setReservas(data);
-        } catch (error) {
-            toast.error("Error al cargar reservas", {
-                description: (error as Error).message,
-            });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+  useEffect(() => {
+    cargarDatos()
+  }, [])
 
-    useEffect(() => {
-        fetchReservas();
-    }, []);
+  const cargarDatos = async () => {
+    try {
+      setLoading(true)
+      // Cargamos reservas y planes en paralelo para poder mostrar los nombres de los planes
+      const [reservasData, planesData] = await Promise.all([
+        getMisReservas(),
+        getPlanes()
+      ])
+      setReservas(reservasData)
+      setPlanes(planesData)
+    } catch (error) {
+      console.error("Error cargando datos:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
-    const handleEdit = (reserva: Reserva) => {
-        setSelectedReserva(reserva);
-        setIsFormOpen(true);
-    };
+  const handleCancelar = async (id: string) => {
+    if (!confirm("¿Estás seguro de que deseas cancelar esta reserva?")) return
 
-    const onFormSubmit = () => {
-        fetchReservas();
-        setIsFormOpen(false);
-    };
+    try {
+      setCancelling(id)
+      await cancelarReserva(id)
+      // Recargar la lista después de cancelar
+      await cargarDatos()
+    } catch (error) {
+      alert("Error al cancelar la reserva")
+      console.error(error)
+    } finally {
+      setCancelling(null)
+    }
+  }
 
-    if (isLoading) return <div>Cargando reservas...</div>;
+  // Helper para encontrar el nombre del plan basado en el ID o objeto guardado
+  const getNombrePlan = (planRef: string | Plan) => {
+    if (typeof planRef === 'object') return planRef.nombre
+    const planEncontrado = planes.find(p => p.id === planRef)
+    return planEncontrado ? planEncontrado.nombre : "Plan desconocido"
+  }
 
-    return (
-        <div className="min-h-screen bg-background">
-            <PublicNavbar />
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(price)
+  }
 
-            <div className="max-w-7xl mx-auto px-4 py-12">
-                <div className="mb-12">
-                    <h1 className="font-serif text-4xl md:text-5xl font-bold mb-4 text-balance">Tus Reservas</h1>
-                </div>
+  // Helper para mostrar estado con estilo
+  const getEstadoBadge = (estado: string) => {
+    switch (estado) {
+      case "CONFIRMADA":
+        return <Badge className="bg-green-600">Confirmada</Badge>
+      case "CANCELADA":
+        return <Badge variant="destructive">Cancelada</Badge>
+      case "PENDIENTE":
+        return <Badge variant="secondary">Pendiente</Badge>
+      default:
+        return <Badge variant="outline">{estado}</Badge>
+    }
+  }
 
-                <div className="rounded-lg border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Plan</TableHead>
-                                <TableHead>Guía</TableHead>
-                                <TableHead>Participantes</TableHead>
-                                <TableHead>Refrigerio</TableHead>
-                                <TableHead>Fecha</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {reservas.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={8} className="text-center">
-                                        No hay reservas.
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                reservas.map((reserva) => (
-                                    <TableRow key={reserva.reservaId}>
-                                        <TableCell>
-                                            {typeof reserva.plan === "object"
-                                                ? reserva.plan.nombre
-                                                    ? reserva.plan.nombre
-                                                    : `Plan #${reserva.plan.id}`
-                                                : reserva.plan}
-                                        </TableCell>
-                                        <TableCell>
-                                            {typeof reserva.guia === "object"
-                                                ? reserva.guia.nombre
-                                                    ? reserva.guia.nombre
-                                                    : `Guía #${reserva.guia.id}`
-                                                : reserva.guia}
-                                        </TableCell>
-                                        <TableCell>{reserva.participantes ?? "—"}</TableCell>
-                                        <TableCell>{reserva.refrigerio}</TableCell>
-                                        <TableCell>
-                                            {reserva.fechaReserva
-                                                ? new Date(reserva.fechaReserva).toLocaleDateString("es-CO", {
-                                                    year: "numeric",
-                                                    month: "long",
-                                                    day: "numeric"
-                                                })
-                                                : "—"}
-                                        </TableCell>
-                                        <TableCell>{reserva.precioTotal ? `$${reserva.precioTotal}` : "—"}</TableCell>
-                                        <TableCell className="text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="outline" size="icon">
-                                                        <MoreHorizontal className="w-4 h-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => handleEdit(reserva)}>
-                                                        Editar
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+  return (
+    <div className="min-h-screen bg-muted">
+      <PublicNavbar />
 
-                </div>
-            </div>
-            <ReservaForm
-                isOpen={isFormOpen}
-                onOpenChange={setIsFormOpen}
-                reserva={selectedReserva}
-                onSubmitSuccess={onFormSubmit}
-            />
-        </div>
-    )
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl font-serif">Mis Reservas</CardTitle>
+            <CardDescription>
+              Gestiona tus próximas aventuras y revisa tu historial
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : reservas.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                No tienes reservas registradas.
+              </div>
+            ) : (
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Reserva ID</TableHead>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Participantes</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead className="text-right">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {reservas.map((reserva) => (
+                      <TableRow key={reserva.reservaId}>
+                        <TableCell className="font-medium font-mono text-xs">
+                          {reserva.reservaId}
+                        </TableCell>
+                        <TableCell>{getNombrePlan(reserva.plan)}</TableCell>
+                        <TableCell>
+                          {new Date(reserva.fechaReserva).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>{reserva.participantes}</TableCell>
+                        <TableCell>{formatPrice(reserva.precioTotal)}</TableCell>
+                        <TableCell>{getEstadoBadge(reserva.estado)}</TableCell>
+                        <TableCell className="text-right">
+                          {reserva.estado !== "CANCELADA" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleCancelar(reserva.reservaId)}
+                              disabled={cancelling === reserva.reservaId}
+                              title="Cancelar Reserva"
+                            >
+                              {cancelling === reserva.reservaId ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              )}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
 }

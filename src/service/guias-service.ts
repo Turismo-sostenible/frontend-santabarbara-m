@@ -1,76 +1,156 @@
-// src/service/guias-service.ts
-import { apiClient } from "@/lib/api";
-import type {
-  Guia,
-  CreateGuiaPayload,
-  UpdateGuiaPayload,
-  UpdateDisponibilidadPayload,
-  HorarioGuia
-} from "@/types";
+// src/services/guias-service.ts
+import type { Guia, HorarioGuia, CreateGuiaPayload, UpdateGuiaPayload, UpdateDisponibilidadPayload } from "@/types";
 
+// Helper para crear objetos de hora simulados
+const createTime = (h: number, m: number = 0) => ({ hour: h, minute: m, second: 0, nano: 0 });
 
+// Horario por defecto para nuevos guías
+const defaultHorario: HorarioGuia[] = [
+  {
+    dia: "MONDAY", disponible: false, franjas: []
+  },
+  {
+    dia: "TUESDAY", disponible: false, franjas: []
+  },
+  {
+    dia: "WEDNESDAY", disponible: false, franjas: []
+  },
+  {
+    dia: "THURSDAY", disponible: false, franjas: []
+  },
+  {
+    dia: "FRIDAY", disponible: true, franjas: [{ horaInicio: createTime(8), horaFin: createTime(17) }]
+  },
+  {
+    dia: "SATURDAY",
+    disponible: true,
+    franjas: [
+      { horaInicio: createTime(8), horaFin: createTime(12) },
+      { horaInicio: createTime(14), horaFin: createTime(18) }
+    ]
+  },
+  {
+    dia: "SUNDAY",
+    disponible: true,
+    franjas: [
+      { horaInicio: createTime(9), horaFin: createTime(13) }
+    ]
+  }
+];
 
-const QUERY_ENDPOINT = "/api/v1/guias";
-const ADMIN_ENDPOINT = "/api/v1/guias/admin";
+// Base de datos de guías en memoria (Mutable)
+let MOCK_GUIAS: Guia[] = [
+  {
+    id: "guia-1",
+    nombre: "Carlos Ruiz",
+    email: "carlos@guias.com",
+    telefono: "3001112233",
+    estado: "ACTIVO",
+    horarios: defaultHorario
+  },
+  {
+    id: "guia-2",
+    nombre: "Ana María Polo",
+    email: "ana@guias.com",
+    telefono: "3104445566",
+    estado: "ACTIVO",
+    horarios: defaultHorario
+  },
+];
 
-// --- Métodos de Consulta (guia-query-controller) ---
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-/**
- * Obtiene la lista de todos los guías.
- * GET /guias
- */
+// --- LECTURA ---
 export const getGuias = async (): Promise<Guia[]> => {
-  console.log("Fetching guias from", QUERY_ENDPOINT);
-  return apiClient.get(QUERY_ENDPOINT);
+  await delay(500);
+  return [...MOCK_GUIAS];
 };
 
-/**
- * Obtiene un guía específico por su ID.
- * GET /guias/{id}
- */
 export const getGuiaById = async (id: string): Promise<Guia> => {
-  return apiClient.get(`${QUERY_ENDPOINT}/${id}`);
+  await delay(500);
+  const guia = MOCK_GUIAS.find(g => g.id === id);
+  if (!guia) throw new Error(`Guía con id ${id} no encontrado`);
+  return guia;
 };
 
-// --- Métodos de Comando (guia-admin-command-controller) ---
+// --- CREACIÓN ---
+export const createGuia = async (payload: CreateGuiaPayload): Promise<Guia> => {
+  await delay(800);
+  if (MOCK_GUIAS.some(g => g.email === payload.email)) {
+    throw new Error("El email ya está registrado para otro guía.");
+  }
 
-/**
- * Crea un nuevo guía.
- * POST /guias/admin
- * (Requiere token de Admin)
- */
-export const createGuia = async (data: CreateGuiaPayload): Promise<Guia> => {
-  // Asumimos que el backend devuelve el guía creado, aunque Swagger solo dice 200 OK
-  return apiClient.post(ADMIN_ENDPOINT, data);
+  const newGuia: Guia = {
+    id: `guia-${Date.now()}-${MOCK_GUIAS.length + 1}`,
+    nombre: payload.nombre,
+    email: payload.email,
+    telefono: payload.telefono,
+    estado: "INACTIVO", // Por defecto, se activa después de configurar horarios
+    horarios: [], // Empieza sin horarios configurados
+  };
+  MOCK_GUIAS.push(newGuia);
+  return newGuia;
 };
 
-/**
- * Actualiza la información de un guía.
- * PUT /guias/admin/{id}
- * (Requiere token de Admin)
- */
-export const updateGuia = async (id: string, data: UpdateGuiaPayload): Promise<void> => {
-  // Swagger dice 200 OK, por lo que devolvemos Promise<void>
-  return apiClient.put(`${ADMIN_ENDPOINT}/${id}`, data);
+// --- ACTUALIZACIÓN (Datos básicos) ---
+export const updateGuia = async (id: string, payload: UpdateGuiaPayload): Promise<Guia> => {
+  await delay(800);
+  const index = MOCK_GUIAS.findIndex(g => g.id === id);
+  if (index === -1) throw new Error("Guía no encontrado.");
+
+  const updatedGuia = {
+    ...MOCK_GUIAS[index],
+    ...payload,
+  };
+  MOCK_GUIAS[index] = updatedGuia;
+  return updatedGuia;
 };
 
-/**
- * Elimina un guía.
- * DELETE /guias/admin/{id}
- * (Requiere token de Admin)
- */
+// --- ELIMINACIÓN ---
 export const deleteGuia = async (id: string): Promise<void> => {
-  return apiClient.delete(`${ADMIN_ENDPOINT}/${id}`);
+  await delay(600);
+  const initialLength = MOCK_GUIAS.length;
+  MOCK_GUIAS = MOCK_GUIAS.filter(g => g.id !== id);
+  if (MOCK_GUIAS.length === initialLength) {
+    throw new Error("Guía no encontrado para eliminar.");
+  }
 };
 
-/**
- * Actualiza la disponibilidad de un guía.
- * PUT /guias/admin/{guiaId}/disponibilidad
- * (Requiere token de Admin)
- */
+// --- ACTUALIZACIÓN (Disponibilidad) ---
 export const updateDisponibilidad = async (
-  guiaId: string,
-  data: UpdateDisponibilidadPayload
-): Promise<void> => {
-  return apiClient.put(`${ADMIN_ENDPOINT}/${guiaId}/disponibilidad`, data);
+  id: string,
+  payload: UpdateDisponibilidadPayload
+): Promise<Guia> => {
+  await delay(1000);
+  const index = MOCK_GUIAS.findIndex(g => g.id === id);
+  if (index === -1) throw new Error("Guía no encontrado.");
+  
+  // Convertir los strings HH:MM de vuelta a objetos {hour, minute}
+  const updatedHorarios: HorarioGuia[] = payload.map(payloadDia => {
+    const franjasHorarias: HorarioGuia["franjas"] = payloadDia.franjas.map(f => {
+      const [startH, startM] = f.horaInicio.split(":").map(Number);
+      const [endH, endM] = f.horaFin.split(":").map(Number);
+      
+      return {
+        horaInicio: { hour: startH, minute: startM, second: 0, nano: 0 },
+        horaFin: { hour: endH, minute: endM, second: 0, nano: 0 },
+      };
+    });
+
+    // Determinar el estado ACTIVO si hay al menos 1 día disponible
+    const newEstado = payload.some(h => h.disponible && h.franjas.length > 0) ? "ACTIVO" : "INACTIVO";
+    
+    // Actualizar el estado del Guía
+    MOCK_GUIAS[index].estado = newEstado;
+
+    return {
+      dia: payloadDia.dia as Guia['horarios'][number]['dia'],
+      disponible: payloadDia.disponible,
+      franjas: franjasHorarias,
+    };
+  });
+  
+  MOCK_GUIAS[index].horarios = updatedHorarios;
+  
+  return MOCK_GUIAS[index];
 };

@@ -1,22 +1,21 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation" // Importante para redirigir
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { PublicNavbar } from "@/components/public-navbar"
-import { toast } from "sonner"
-import { useRouter } from "next/navigation"
-
-import { register } from "@/service/auth-service"
-import { RegisterPayload } from "@/types"
+import { register } from "@/service/auth-service" // Importamos el servicio
 
 export default function RegisterPage() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+
   const [formData, setFormData] = useState({
     username: "",
     name: "",
@@ -25,77 +24,33 @@ export default function RegisterPage() {
     password: "",
     phone: "",
     address: "",
-    age: ""
+    age: "",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const TENANT_ID = "01-santa-barbara"
-    const API_URL = "https://api-gateway-wi8c.onrender.com/auth/register"
-
-    const payload: RegisterPayload = {
-      username: formData.username,
-      name: formData.name,
-      lastName: formData.lastName,
-      email: formData.email,
-      password: formData.password,
-      phone: formData.phone,
-      address: formData.address,
-      age: parseInt(formData.age), // Convertimos la edad a número
-      role: "CLIENT"
-    }
+    setLoading(true)
+    setError("")
 
     try {
-
-      await register(payload, "01-santa-barbara");
+      await register({
+        username: formData.username,
+        name: formData.name,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        address: formData.address,
+        age: parseInt(formData.age), // Convertir a número
+        role: "CLIENT" // Valor por defecto
+      })
       
-      toast.success("¡Registro Exitoso!", {
-        description: "Tu cuenta ha sido creada. ¡Bienvenido!",
-        duration: 3000
-      })
-
-      setTimeout(() => {
-        router.push('/iniciar-sesion')
-      }, 2000)
-
-      /*const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "tenant_id": TENANT_ID,
-        },
-        body: JSON.stringify({
-          ...formData, // Esto copia todo lo que ya tenías (nombre, email, etc.)
-          edad: parseInt(formData.age), // Asegúrate de convertir edad a número si es necesario
-          role: "CLIENT" // <-- Aquí añades el rol
-        })
-      })
-
-      if (!response.ok) {
-        if (response.status === 400 || response.status === 409) {
-          toast.error("Error en el registro. Verifica tus datos e intenta nuevamente.")
-        } else {
-          //toast.error("Error del servidor. Por favor, intenta más tarde.")
-          toast.error("Error en el registro. Usuario o correo electrónico ya registrado.")
-        }
-        return;
-      }
-
-      toast.success("¡Registro Exitoso!", {
-        description: "Tu cuenta ha sido creada. ¡Bienvenido!",
-        duration: 3000 // 3 segundos
-      })
-
-      setTimeout(() => {
-        router.push('/iniciar-sesion')
-      }, 3000)
-
-      const data = await response.json()*/
-      
-
-    }catch (err: any) {
-      console.error("Error durante el registro:", err.message)
-      toast.error("Error en el registro. Verifica tus datos e intenta nuevamente.")
+      // Redirigir al login o home tras éxito
+      router.push("/iniciar-sesion")
+    } catch (err: any) {
+      setError(err.message || "Error al registrarse")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -114,120 +69,60 @@ export default function RegisterPage() {
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-serif">Crear Cuenta</CardTitle>
-            <CardDescription>Completa el formulario para registrarte</CardDescription>
+            <CardDescription>Completa todos los campos para registrarte</CardDescription>
           </CardHeader>
           <CardContent>
+            {error && (
+              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4">
+                {error}
+              </div>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
-
-              <div className="space-y-2">
-                <Label htmlFor="nombre">Nombre de Usuario</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  type="text"
-                  placeholder="Tu nombre de usuario"
-                  value={formData.username}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nombre</Label>
+                  <Input id="name" name="name" placeholder="Juan" value={formData.name} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Apellido</Label>
+                  <Input id="lastName" name="lastName" placeholder="Pérez" value={formData.lastName} onChange={handleChange} required />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="nombre">Nombre</Label>
-                <Input
-                  id="nombre"
-                  name="name"
-                  type="text"
-                  placeholder="Juan Pérez"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
+                <Label htmlFor="username">Nombre de Usuario</Label>
+                <Input id="username" name="username" placeholder="juanperez" value={formData.username} onChange={handleChange} required />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="apellido">Apellido</Label>
-                <Input
-                  id="apellido"
-                  name="lastName"
-                  type="text"
-                  placeholder="Pérez"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="edad">Edad</Label>
-                <Input
-                  id="edad"
-                  name="age"
-                  type="number"
-                  placeholder="Tu edad"
-                  min="1"
-                  max="100"
-                  value={formData.age}
-                  onChange={handleChange}
-                  required
-                />
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                  <Label htmlFor="age">Edad</Label>
+                  <Input id="age" name="age" type="number" placeholder="25" value={formData.age} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Teléfono</Label>
+                  <Input id="phone" name="phone" type="tel" placeholder="3001234567" value={formData.phone} onChange={handleChange} required />
+                </div>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="email">Correo Electrónico</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="tu@email.com"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
+                <Input id="email" name="email" type="email" placeholder="tu@email.com" value={formData.email} onChange={handleChange} required />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">Contraseña</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="Mínimo 8 caracteres"
-                  value={formData.password}
-                  onChange={handleChange}
-                  minLength={8}
-                  required
-                />
+                <Input id="password" name="password" type="password" value={formData.password} onChange={handleChange} minLength={8} required />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="telefono">Teléfono</Label>
-                <Input
-                  id="telefono"
-                  name="phone"
-                  type="tel"
-                  placeholder="+57 300 123 4567"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                />
+                <Label htmlFor="address">Dirección</Label>
+                <Input id="address" name="address" placeholder="Calle 123..." value={formData.address} onChange={handleChange} required />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="direccion">Dirección</Label>
-                <Input
-                  id="direccion"
-                  name="address"
-                  type="text"
-                  placeholder="Calle 123 #45-67"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                Registrarse
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Registrando..." : "Registrarse"}
               </Button>
             </form>
 

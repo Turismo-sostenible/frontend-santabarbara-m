@@ -1,75 +1,50 @@
-"use client";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Clock, DollarSign } from "lucide-react";
-
-import type { Plan } from "@/types";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
+import { Clock, DollarSign } from "lucide-react"
+import type { Plan } from "@/types" // Importamos la interfaz oficial
 
 interface PlanCardProps {
-  plan: Plan;
+  plan: Plan
 }
 
 export function PlanCard({ plan }: PlanCardProps) {
-  const [imageError, setImageError] = useState(false);
-  
+  // Helper para obtener el valor numérico del precio
+  const getPrecioValor = () => {
+    if (plan.precioValor) return plan.precioValor;
+    if (plan.precio?.valor) return plan.precio.valor;
+    return 0;
+  }
+
+  // Helper para obtener la primera imagen o el placeholder
+  const getImagen = () => {
+    if (plan.imagenes && plan.imagenes.length > 0) {
+      return plan.imagenes[0];
+    }
+    return "/placeholder.svg";
+  }
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
       minimumFractionDigits: 0,
-    }).format(price);
-  };
-
-  // Construir URL de imagen del backend
-  const baseUrl = process.env.NEXT_PUBLIC_PLAN_MICRO_URL || "http://localhost:3002/api/v1";
-  const domainUrl = baseUrl.replace(/\/api\/v1$/, "");
-  
-  const getImageUrl = (imagePath?: string): string => {
-    if (!imagePath) return "/placeholder.svg";
-    if (imagePath.startsWith("http")) return imagePath;
-    return `${domainUrl}${imagePath}`;
-  };
-
-  const imageUrl = plan.imagenes && plan.imagenes.length > 0 
-    ? getImageUrl(plan.imagenes[0])
-    : "/placeholder.svg";
-
-  const router = useRouter()
-
-  const handleReserve = () => {
-    try {
-      sessionStorage.setItem("selectedPlan", JSON.stringify(plan))
-    } catch (e) {
-      // ignore
-    }
-    router.push("/reservas")
+    }).format(price)
   }
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow group">
-      <Link href={`/planes/${plan.id}`} className="block">
-        <div className="relative h-48 overflow-hidden bg-muted">
-          <img
-            src={imageError ? "/placeholder.svg" : imageUrl}
-            alt={plan.nombre}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={() => setImageError(true)}
-          />
-        </div>
-      </Link>
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={getImagen()}
+          alt={plan.nombre}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+      </div>
 
       <CardContent className="p-6">
-        <Link href={`/planes/${plan.id}`} className="block">
-          <h3 className="font-serif text-xl font-semibold mb-2 text-balance hover:underline">
-            {plan.nombre}
-          </h3>
-        </Link>
-        <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-2">
-          {plan.descripcion}
-        </p>
+        <h3 className="font-serif text-xl font-semibold mb-2 text-balance">{plan.nombre}</h3>
+        <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-2">{plan.descripcion}</p>
 
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-1 text-muted-foreground">
@@ -78,16 +53,17 @@ export function PlanCard({ plan }: PlanCardProps) {
           </div>
           <div className="flex items-center gap-1 font-semibold text-primary">
             <DollarSign className="w-4 h-4" />
-            <span>{formatPrice(plan.precioValor || 0)}</span>
+            <span>{formatPrice(getPrecioValor())}</span>
           </div>
         </div>
       </CardContent>
 
       <CardFooter className="p-6 pt-0">
-        <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleReserve}>
-          Reservar Ahora
+        <Button asChild className="w-full bg-primary hover:bg-primary/90">
+          {/* Asegúrate de que el ID sea string, que ahora lo es */}
+          <Link href={`/planes/${plan.id}`}>Reservar Ahora</Link>
         </Button>
       </CardFooter>
     </Card>
-  );
+  )
 }

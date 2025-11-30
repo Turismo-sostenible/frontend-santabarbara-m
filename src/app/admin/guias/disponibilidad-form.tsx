@@ -1,4 +1,3 @@
-// src/app/admin/guias/disponibilidad-form.tsx
 "use client";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -18,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import type { Guia, HorarioGuiaPayload, UpdateDisponibilidadPayload } from "@/types";
 import { updateDisponibilidad } from "@/service/guias-service";
 import { X, Plus } from "lucide-react";
-import { useEffect } from "react"; // ⬅️ **Importa useEffect**
+import { useEffect } from "react";
 
 // --- Helper para CONVERTIR DE OBJETO (backend) A STRING (form) ---
 const objToTime = (obj: { hour: number, minute: number } | null | undefined) => {
@@ -33,7 +32,7 @@ const franjaSchema = z.object({
   horaInicio: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM"),
   horaFin: z.string().regex(/^\d{2}:\d{2}$/, "Formato HH:MM"),
 });
-// ... (el resto de tus esquemas zod están bien)
+
 const horarioSchema = z.object({
   dia: z.string(),
   disponible: z.boolean(),
@@ -61,7 +60,7 @@ interface DisponibilidadFormProps {
   onSubmitSuccess: () => void;
 }
 
-export function DisponibilidadForm({
+export default function DisponibilidadForm({ // <--- CORRECCIÓN A EXPORTACIÓN POR DEFECTO
   isOpen,
   onOpenChange,
   guia,
@@ -80,7 +79,7 @@ export function DisponibilidadForm({
         return {
           dia: horarioExistente.dia,
           disponible: horarioExistente.disponible,
-          // ⬇️ **CORRECCIÓN #1: Convierte el OBJETO del backend a STRING para el formulario**
+          // Convierte el OBJETO del backend a STRING para el formulario
           franjas: (horarioExistente.franjas || []).map(f => ({
             horaInicio: objToTime(f.horaInicio),
             horaFin: objToTime(f.horaFin),
@@ -98,14 +97,13 @@ export function DisponibilidadForm({
     // Los valores por defecto se asignarán con el useEffect
   });
 
-  // ⬇️ **CORRECCIÓN #2: Reinicia el formulario CADA VEZ que el guía o el modal cambien**
-  // Esto soluciona el error de que todos los guías muestren el mismo horario.
+  // Reinicia el formulario CADA VEZ que el guía o el modal cambien
   useEffect(() => {
     if (isOpen) {
       // Carga los valores por defecto del 'guia' actual
       form.reset(getDefaultValues());
     }
-  }, [isOpen, guia, form.reset]); // Dependencias clave
+  }, [isOpen, guia, form.reset]); 
   
 
   const { fields } = useFieldArray({
@@ -115,7 +113,6 @@ export function DisponibilidadForm({
 
   const onSubmit = async (values: DisponibilidadFormValues) => {
     // El payload (values) ya está en el formato de strings "HH:MM"
-    // que espera el backend (como arreglamos en el paso anterior).
     const payload: UpdateDisponibilidadPayload = values.horarios.map(
       (horario): HorarioGuiaPayload => ({
         dia: horario.dia as any,

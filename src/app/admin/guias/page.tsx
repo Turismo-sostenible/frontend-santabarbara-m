@@ -1,4 +1,3 @@
-// src/app/admin/guias/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -23,9 +22,10 @@ import { toast } from "sonner";
 import type { Guia } from "@/types";
 import { getGuias, deleteGuia } from "@/service/guias-service";
 
-// Importa los formularios que crearemos a continuación
-import { GuiaForm } from "./guia-form";
-import { DisponibilidadForm } from "./disponibilidad-form";
+// CORRECCIÓN FINAL: Importamos como default (GuiaForm) y (DisponibilidadForm)
+// Esto asume que los archivos ./guia-form.tsx y ./disponibilidad-form.tsx usan 'export default'
+import GuiaForm from "./guia-form";
+import DisponibilidadForm from "./disponibilidad-form";
 
 export default function GuiasAdminPage() {
   const [guias, setGuias] = useState<Guia[]>([]);
@@ -72,6 +72,8 @@ export default function GuiasAdminPage() {
   };
 
   const handleDelete = async (id: string) => {
+    // Usar toast/modal personalizado en lugar de confirm() si es posible,
+    // pero mantenemos confirm() por simplicidad en este entorno de desarrollo.
     if (!confirm("¿Estás seguro de que quieres eliminar este guía?")) return;
 
     try {

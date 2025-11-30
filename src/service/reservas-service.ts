@@ -1,58 +1,96 @@
 // src/services/reservas-service.ts
-import { apiClient } from "@/lib/api"
-import type {
-  Reserva,
-  CreateReservaPayload,
-  UpdateReservaPayload
-} from "@/types"
+import type { Reserva, CreateReservaPayload, UpdateReservaPayload } from "@/types";
+import { getPlanById } from "./planes-service";
 
-//const QUERY_ENDPOINT = "/api/v1/reservas"
-const QUERY_ENDPOINT = "http://localhost:8085"
+// Array para almacenar las reservas en memoria
+let MOCK_RESERVAS: Reserva[] = [];
 
-// --- Métodos de Consulta (reserva-query-controller) ---
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-/**
- * Obtiene la lista de todas las reservas.
- * GET /reservas
- */
-export const getReservas = async (): Promise<Reserva[]> => {
-  return apiClient.get(QUERY_ENDPOINT)
-}
+export const createReserva = async (
+  payload: CreateReservaPayload
+): Promise<Reserva> => {
+  await delay(800);
 
-/**
- * Obtiene una reserva específica por su ID.
- * GET /reservas/{id}
- */
-export const getReservaById = async (id: string): Promise<Reserva> => {
-  return apiClient.get(`${QUERY_ENDPOINT}/${id}`)
-}
+  // Intentamos obtener el usuario actual si el payload envía el ID del usuario
+  let currentUserId = payload.usuario;
+  
+  // Si el frontend no envía el usuario en el payload (dependiendo de la implementación),
+  // lo sacamos del storage
+  if (!currentUserId && typeof window !== "undefined") {
+    const storedUser = localStorage.getItem("usuario");
+    if (!storedUser) throw new Error("Debes iniciar sesión");
+    currentUserId = JSON.parse(storedUser).id;
+  }
 
-// --- Métodos de Comando (reserva-admin-command-controller) ---
+  // Obtenemos el plan para calcular precio (si el payload no trae el precio final correcto)
+  // Aunque el payload trae 'precioTotal', es buena práctica recalcularlo o validarlo.
+  // Aquí confiamos en el mock o usamos el payload.
+  
+  const nuevaReserva: Reserva = {
+    reservaId: `res-${Date.now()}`,
+    usuario: currentUserId,
+    guia: payload.guia, // string ID
+    plan: payload.plan, // string ID
+    participantes: payload.participantes,
+    refrigerio: payload.refrigerio,
+    fechaReserva: payload.fechaReserva,
+    estado: "CONFIRMADA", // Simulamos que se crea confirmada
+    precioTotal: payload.precioTotal
+  };
 
-/**
- * Crea una nueva reserva.
- * POST /reservas
- * (Requiere token de Admin o usuario según lógica)
- */
-export const createReserva = async (data: CreateReservaPayload): Promise<Reserva> => {
-  console.log("Creando reserva con datos:", data)
-  return apiClient.post(QUERY_ENDPOINT, data)
-}
+  MOCK_RESERVAS.push(nuevaReserva);
+  return nuevaReserva;
+};
 
-/**
- * Actualiza la información de una reserva.
- * PUT /reservas/{id}
- * (Requiere token de Admin)
- */
-export const updateReserva = async (id: string, data: UpdateReservaPayload): Promise<void> => {
-  return apiClient.put(`${QUERY_ENDPOINT}/${id}`, data)
-}
+// NUEVA FUNCIÓN: Implementación de la actualización de la reserva en memoria
+export const updateReserva = async (
+    reservaId: string, 
+    payload: UpdateReservaPayload
+): Promise<Reserva> => {
+    await delay(800);
 
-/**
- * Elimina una reserva.
- * DELETE /reservas/{id}
- * (Requiere token de Admin)
- */
-export const deleteReserva = async (id: string): Promise<void> => {
-  return apiClient.delete(`${QUERY_ENDPOINT}/${id}`)
-}
+    const index = MOCK_RESERVAS.findIndex(r => r.reservaId === reservaId);
+
+    if (index === -1) {
+        throw new Error("Reserva no encontrada para actualizar.");
+    }
+
+    // Aplicar los cambios del payload a la reserva en memoria
+    const updatedReserva = {
+        ...MOCK_RESERVAS[index],
+        ...payload,
+        // Forzar el estado a CONFIRMADA si se edita, o mantener el que tenía
+        estado: MOCK_RESERVAS[index].estado === 'CANCELADA' ? 'CANCELADA' : 'CONFIRMADA'
+    } as Reserva;
+
+    MOCK_RESERVAS[index] = updatedReserva;
+
+    return updatedReserva;
+};
+
+export const getMisReservas = async (): Promise<Reserva[]> => {
+  await delay(600);
+
+  if (typeof window === "undefined") return [];
+
+  const storedUser = localStorage.getItem("usuario");
+  if (!storedUser) throw new Error("No hay sesión activa");
+  
+  const usuario = JSON.parse(storedUser);
+
+  // Filtrar por ID de usuario
+  return MOCK_RESERVAS.filter(r => r.usuario === usuario.id);
+};
+
+export const cancelarReserva = async (reservaId: string): Promise<void> => {
+  await delay(600);
+  
+  const index = MOCK_RESERVAS.findIndex(r => r.reservaId === reservaId);
+  if (index === -1) {
+    throw new Error("Reserva no encontrada");
+  }
+
+  // En lugar de borrarla, cambiamos estado a CANCELADA según la interfaz
+  MOCK_RESERVAS[index].estado = "CANCELADA";
+};

@@ -1,4 +1,3 @@
-// src/app/admin/guias/guia-form.tsx
 "use client";
 
 import { z } from "zod";
@@ -42,7 +41,7 @@ interface GuiaFormProps {
   onSubmitSuccess: () => void;
 }
 
-export function GuiaForm({
+export default function GuiaForm({ 
   isOpen,
   onOpenChange,
   guia,
@@ -63,9 +62,9 @@ export function GuiaForm({
   useEffect(() => {
     if (isEditMode) {
       form.reset({
-        nombre: guia.nombre,
-        email: guia.email,
-        telefono: guia.telefono,
+        nombre: guia!.nombre, 
+        email: guia!.email,
+        telefono: guia!.telefono,
       });
     } else {
       form.reset({
@@ -74,14 +73,14 @@ export function GuiaForm({
         telefono: "",
       });
     }
-  }, [guia, form, isEditMode, isOpen]); // Depende de 'isOpen' para resetear al abrir
+  }, [guia, form, isEditMode, isOpen]); 
 
   const onSubmit = async (values: GuiaFormValues) => {
     try {
       if (isEditMode) {
         // Modo Edición
         const payload: UpdateGuiaPayload = values;
-        await updateGuia(guia.id, payload);
+        await updateGuia(guia!.id, payload);
         toast.success("Guía actualizado");
       } else {
         // Modo Creación
@@ -89,7 +88,8 @@ export function GuiaForm({
         await createGuia(payload);
         toast.success("Guía creado exitosamente");
       }
-      onSubmitSuccess(); // Llama al callback para recargar la tabla y cerrar
+      onOpenChange(false); // Cierra el modal al éxito
+      onSubmitSuccess(); // Llama al callback para recargar la tabla
     } catch (error) {
       toast.error(`Error al ${isEditMode ? "actualizar" : "crear"}`, {
         description: (error as Error).message,
