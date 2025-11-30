@@ -1,12 +1,30 @@
+"use client"
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { MapPin, Users, Calendar, Star } from "lucide-react"
+import { PublicNavbar } from "@/components/public-navbar"
+
+import { useState, useEffect } from "react"
 
 export default function HomePage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    // Revisar solo en el navegador
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("authToken") 
+      if (token) {
+        setIsLoggedIn(true)
+      }
+    }
+  }, [])
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
+      <PublicNavbar />
       <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
         <div
           className="absolute inset-0 z-0"
@@ -30,13 +48,25 @@ export default function HomePage() {
             <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8">
               <Link href="/planes">Ver Planes</Link>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
-            >
-              <Link href="/registro">Registrarse</Link>
-            </Button>
+            {isLoggedIn ? (
+              // Si está logueado: Botón "Mi Perfil"
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
+              >
+                <Link href="/perfil">Mi Perfil</Link>
+              </Button>
+            ) : (
+              // Si NO está logueado: Botón "Registrarse"
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white/20 text-lg px-8"
+              >
+                <Link href="/registro">Registrarse</Link>
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -57,8 +87,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="w-6 h-6 text-secondary" />
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Users className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Guías Certificados</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
@@ -67,8 +97,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="p-6 text-center hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-6 h-6 text-primary" />
               </div>
               <h3 className="font-semibold text-lg mb-2">Reserva Fácil</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
